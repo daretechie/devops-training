@@ -7,6 +7,15 @@
 
 ![Git Installation Confirmation](img/git.png)
 
+## Git Setup Commands
+```sh
+# Set your name
+git config --global user.name "daretechie"
+
+# Set your email
+git config --global user.email "deeprince2020@gmail.com"
+```
+
 ## 🛠️ Common Git Commands
 
 Here are some essential Git commands to get you started:
