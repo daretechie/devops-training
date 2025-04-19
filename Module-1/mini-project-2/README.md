@@ -115,6 +115,18 @@ Merges the specified branch into your current branch.
 
 ---
 
+🔹 The HTML
+The html index is [here](/Module-1/mini-project-2/index.html).
+
+![html](./img/editIndex.png)
+
+---
+
+🔹 GitHub Dashboard
+
+![GitHub Dashboard](./img/github-dashboard.png)
+
+
 ✅ Tips
 
 - Always pull before you push to avoid merge conflicts.
