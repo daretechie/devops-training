@@ -1,5 +1,8 @@
+# 🎯 Objective
 
-# Git Basics
+This document serves as a beginner-friendly guide to understanding and using Git, a powerful version control system. It introduces Git's core purpose, explains commonly used commands such as cloning repositories, checking status, creating and switching branches, staging and committing changes, pushing and pulling updates, and merging branches. It also includes a image for a visual diagram to reinforce understanding of Git workflows. This guide aims to help new developers confidently manage code changes, collaborate on projects, and maintain clean development practices using Git.
+
+## Git Basics
 
 ## 📌 What is Git?
 
@@ -31,7 +34,7 @@ Copies a remote repository to your local machine.
 
 ---
 
-🔹 Check Status
+### 🔹 Check Status
 ```sh
 git status
 ```
@@ -42,7 +45,7 @@ Shows the current status of files in the working directory and staging area.
 
 ---
 
-🔹 Create a Branch
+### 🔹 Create a Branch
 ```sh
 git branch <branch_name>
 ```
@@ -53,7 +56,7 @@ Creates a new branch.
 
 ---
 
-🔹 Switch to a Branch
+###🔹 Switch to a Branch
 ```sh
 git checkout <branch_name>
 ```
@@ -64,7 +67,7 @@ Switches to the specified branch.
 
 ---
 
-🔹 Create and Switch to a Branch
+### 🔹 Create and Switch to a Branch
 ```sh
 git checkout -b <branch_name>
 ```
@@ -75,7 +78,7 @@ Creates a new branch and switches to it immediately.
 
 ---
 
-🔹 Add Files to Staging
+### 🔹 Add Files to Staging
 ```sh
 git add <file_name>
 # or add all files
@@ -86,7 +89,7 @@ git add .
 Add file(s) to stage for committing.
 ---
 
-🔹 Commit Changes
+### 🔹 Commit Changes
 ```sh
 git commit -m "Your commit message"
 ```
@@ -97,14 +100,14 @@ Saves the staged changes with a message.
 
 ---
 
-🔹 Push to Remote Repository
+### 🔹 Push to Remote Repository
 ```sh
 git push origin <branch_name>
 ```
 ![Push](./img/push.png)
 ---
 
-🔹 Pull Latest Changes
+### 🔹 Pull Latest Changes
 ```sh
 git pull
 ```
@@ -115,7 +118,7 @@ Fetches and merges changes from the remote repository into your current branch.
 
 ---
 
-🔹 Merge a Branch
+### 🔹 Merge a Branch
 ```sh
 git merge <branch_name>
 ```
@@ -126,14 +129,14 @@ Merges the specified branch into your current branch.
 
 ---
 
-🔹 The HTML
+### 🔹 The HTML
 The html index is [here](/Module-1/mini-project-2/index.html).
 
 ![html](./img/editIndex.png)
 
 ---
 
-🔹 GitHub Dashboard
+### 🔹 GitHub Dashboard
 
 ![GitHub Dashboard](./img/github-dashboard.png)
 
