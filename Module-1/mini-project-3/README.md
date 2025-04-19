@@ -140,6 +140,10 @@ The html index is [here](/Module-1/mini-project-2/index.html).
 
 ![GitHub Dashboard](./img/github-dashboard.png)
 
+### 🔹 Ownership Issue Resolved
+
+![Ownership issue](./img/jerryIssue.png)
+
 
 ✅ Tips
 
