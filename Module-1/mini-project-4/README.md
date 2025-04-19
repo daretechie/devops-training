@@ -26,6 +26,7 @@ git checkout -b jerry/update-contact
 ```
 
 ![Branch](./img/branch.png)
+
 ---
 
 2. Make Your Changes
@@ -57,7 +58,8 @@ git push  origin tom/update-navigation
 git push origin jerry/update-contact
 ```
 
-![push](./img/jerryIssue.png)
+![Branch](./img/jerryPR.png)
+![Branch](./img/tomPR.png)
 ---
 
 5. Create a Pull Request
@@ -73,6 +75,8 @@ Assign reviewers if needed
 Click Create pull request
 
 
+![Branch](./img/jerryPR2.png)
+![Branch](./img/tomPR2.png)
 
 ---
 
@@ -108,7 +112,8 @@ git checkout main
 git pull
 git merge feature/my-feature
 ```
-
+![Merge](./img/jerryPRSuccess.png)
+![Merge](./img/tomPRsuccess.png)
 ![Merge](./img/merge.png)
 ---
 
@@ -119,6 +124,7 @@ After merging, make sure everyone updates their local copy:
 ```sh
 git pull origin main
 ```
+![Pull Origin main](./img/pullOriginUpdate.png)
 
 ---
 
