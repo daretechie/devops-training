@@ -14,6 +14,7 @@ Here are some essential Git commands to get you started:
 git clone <repository_url>
 ```
 ![Clone](./img/clone.png)
+
 Copies a remote repository to your local machine.
 
 
@@ -23,7 +24,8 @@ Copies a remote repository to your local machine.
 ```sh
 git status
 ```
-![Clone](./img/statusAdd.png)
+![Status](./img/statusAdd.png)
+
 Shows the current status of files in the working directory and staging area.
 
 
@@ -33,7 +35,8 @@ Shows the current status of files in the working directory and staging area.
 ```sh
 git branch <branch_name>
 ```
-![Clone](./img/branch.png)
+![Branch](./img/branch.png)
+
 Creates a new branch.
 
 
@@ -43,7 +46,8 @@ Creates a new branch.
 ```sh
 git checkout <branch_name>
 ```
-![Clone](./img/branch.png)
+![Branch](./img/branch.png)
+
 Switches to the specified branch.
 
 
@@ -53,7 +57,8 @@ Switches to the specified branch.
 ```sh
 git checkout -b <branch_name>
 ```
-![Clone](./img/branch.png)
+![Branch](./img/branch.png)
+
 Creates a new branch and switches to it immediately.
 
 
@@ -65,14 +70,17 @@ git add <file_name>
 # or add all files
 git add .
 ```
-![Clone](./img/addCommit.png)
+![Add](./img/addCommit.png)
+
+Add file(s) to stage for committing.
 ---
 
 🔹 Commit Changes
 ```sh
 git commit -m "Your commit message"
 ```
-![Clone](./img/addCommit.png)
+![Commit](./img/addCommit.png)
+
 Saves the staged changes with a message.
 
 
@@ -82,14 +90,15 @@ Saves the staged changes with a message.
 ```sh
 git push origin <branch_name>
 ```
-![Clone](./img/push.png)
+![Push](./img/push.png)
 ---
 
 🔹 Pull Latest Changes
 ```sh
 git pull
 ```
-![Clone](./img/pull.png)
+![Pull](./img/pull.png)
+
 Fetches and merges changes from the remote repository into your current branch.
 
 
@@ -99,7 +108,8 @@ Fetches and merges changes from the remote repository into your current branch.
 ```sh
 git merge <branch_name>
 ```
-![Clone](./img/merge.png)
+![Merge](./img/merge.png)
+
 Merges the specified branch into your current branch.
 
 
