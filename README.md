@@ -21,6 +21,8 @@ This repository serves as a structured record of my hands-on experience and lear
 - [Module 1 - Mini Project 1](Module-1/)
   - [Module 1 - Mini Project 1](Module-1/mini-project-1/README.md)
   - [Module 1 - Mini Project 2](Module-1/mini-project-2/README.md)
+  - [Module 1 - Mini Project 3](Module-1/mini-project-3/README.md)
+  - [Module 1 - Mini Project 4](Module-1/mini-project-4/README.md)
 
 ## 📚 Resources
 
