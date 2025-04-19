@@ -24,7 +24,7 @@ Copies a remote repository to your local machine.
 ```sh
 git status
 ```
-![Status](./img/statusAdd.png)
+![Status](./img/addCommit.png)
 
 Shows the current status of files in the working directory and staging area.
 
