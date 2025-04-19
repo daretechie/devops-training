@@ -1,13 +1,16 @@
 # Greenwood Library Website - Git Collaboration Guide 🌱
 
+![demo](demo.gif)
+
+![demo](greenwood.png)
+
 [![GitHub License](https://img.shields.io/badge/license-MIT-green)](https://github.com/daretechie/greenwood-library-website/blob/main/LICENSE)
 [![Repo Version](https://img.shields.io/badge/version-1.0.0-blue)](https://github.com/daretechie/greenwood-library-website)
 
 **Repository**: [github.com/daretechie/greenwood-library-website](https://github.com/daretechie/greenwood-library-website)
 
-![Repository](repo.png)
+![Repository](img/repo.png)
 
-![demo](demo.mp4)
 
 ## Objectives 🎯
 1. Practice collaborative Git workflows with multiple contributors
@@ -25,7 +28,7 @@
 git clone https://github.com/daretechie/greenwood-library-website.git
 cd greenwood-library-website
 ```
-![git clone](clone.png)
+![git clone](img/clone.png)
 
 ### 2. Initial Commit Structure
 ```bash
@@ -45,7 +48,7 @@ main
 # Create feature branch
 git checkout -b morgan/add-book-reviews
 ```
-![Morgan branch](branchMorgan.png)
+![Morgan branch](img/branchMorgan.png)
 
 ```sh
 # Add new feature
@@ -63,7 +66,9 @@ git push origin morgan/add-book-reviews
 3. Address feedback (if any)
 4. Merge using **Squash and Merge**
 
-![Morgan PR](morganPR.png)
+![Morgan PR](img/morganPR.png)
+
+![Morgan pr success](img/morganPRsuccess.png)
 
 
 ### Jamie's Task: Update Events Page
@@ -72,7 +77,7 @@ git push origin morgan/add-book-reviews
 git checkout main
 git pull origin main
 ```
-![pull origin main](pullOriginMain.png)
+![pull origin main](img/pullOriginMain.png)
 
 # Create feature branch
 
@@ -80,7 +85,7 @@ git pull origin main
 git checkout -b jamie/update-events
 ```
 
-![jamie branch](jamieBranch.png)
+![jamie branch](img/jamieBranch.png)
 
 ```sh
 # Make changes
@@ -98,8 +103,8 @@ git push origin jamie/update-events
    git checkout update-events
    git merge main
    ```
-![jamie branch](jamiePR.png)
-![jamie branch](jamiePRsuccess.png)
+![jamie pr](img/jamiePR.png)
+![jamie pr success](img/jamiePRsuccess.png)
 
 
 3. Resolve conflicts (if any)
