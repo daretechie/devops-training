@@ -1,6 +1,6 @@
 # Greenwood Library Website - Git Collaboration Guide 🌱
 
-![demo](demo.gif)
+![demo](dem.gif)
 
 ![demo](greenwood.png)
 
