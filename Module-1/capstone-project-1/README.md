@@ -131,9 +131,6 @@ git push origin jamie/update-events
 | Push Changes          | `git push origin add-book-reviews`        | `git push origin update-events`          |
 | PR Merge Strategy     | Squash                                    | Rebase                                   |
 
-## License 📄
-This project is licensed under the [MIT License](https://github.com/daretechie/greenwood-library-website/blob/main/LICENSE).
-
 --- 
 
 **Happy Collaborating!** 👥💻  
