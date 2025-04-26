@@ -2,12 +2,8 @@
 
 ![demo](dem.gif)
 
-![demo](greenwood.png)
-
-[![GitHub License](https://img.shields.io/badge/license-MIT-green)](https://github.com/daretechie/greenwood-library-website/blob/main/LICENSE)
-[![Repo Version](https://img.shields.io/badge/version-1.0.0-blue)](https://github.com/daretechie/greenwood-library-website)
-
 **Repository**: [github.com/daretechie/greenwood-library-website](https://github.com/daretechie/greenwood-library-website)
+![demo](greenwood.png)
 
 ![Repository](img/repo.png)
 
