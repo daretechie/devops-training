@@ -1,0 +1,5 @@
+ls: cannot access 'missingfile': No such file or directory
+ls: cannot access 'file1.txt': No such file or directory
+
+'2>'	Redirect stderr (overwrite)	ls missingfile 2> error.log	Saves error output to error.log, overwriting it
+'2>>'	Redirect stderr (append)	ls missingfile 2>> error.log	Appends error output to error.log
