@@ -1,0 +1,9 @@
+
+
+target="world"
+echo "hello, ${target}"
+echo "\${#} : ${#}"
+echo "\${@} : ${@}"
+echo "\${2} : ${2}"
+echo "\${0} : ${0}"
+
