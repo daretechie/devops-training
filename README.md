@@ -23,6 +23,7 @@ This repository serves as a structured record of my hands-on experience and lear
   - [Mini Project 2 - Git Version Control Basics](Module-1/mini-project-2/README.md)
   - [Mini Project 3 - Basic Git Commands](Module-1/mini-project-3/README.md)
   - [Mini Project 4 - Git Branching and Merging](Module-1/mini-project-4/README.md)
+  - [Mini Project 5 - Mini Project-Linux Fundamentals](Module-1/mini-project-5/README.md)
   - [Capstone Project 1 - Git](Module-1/capstone-project-1/README.md)
 - [Module 2 Projects](Module-2/)
 
