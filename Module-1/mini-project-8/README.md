@@ -44,6 +44,10 @@ ls -latr
 
 ![Permissions Output](img/img1.png)
 
+Use `ls -latr` to list files and see their permission strings.
+
+If you see permission issues, verify your user's group or ownership of the file using `ls -l filename` or `id`.
+
 ---
 
 ## 🔧 File Permission Commands
@@ -61,6 +65,8 @@ chmod 777 note.txt
 
 ![chmod Usage](img/img3.png)
 
+---
+
 ### `chown` — Change Ownership
 
 ```sh
@@ -69,6 +75,15 @@ ls -latr filename.txt
 ```
 
 ![chown Usage](img/img4.png)
+
+⚠️ **Troubleshooting Tip:**
+If you encounter an error like `invalid group: 'developer'`, ensure the group exists:
+
+```sh
+groupadd developer
+```
+
+Use `getent group developer` to confirm.
 
 ---
 
@@ -152,6 +167,26 @@ sudo userdel username
 sudo chown :developers /path/to/dir
 sudo chmod g+rw /path/to/dir
 ```
+
+---
+
+## ⏰ Bonus: Task Scheduling for Automation
+
+In real-world DevOps work, managing users or permissions manually every time is inefficient. Task scheduling automates this using `cron` jobs.
+
+### Example: Automatically check permission of user home folders daily
+
+```sh
+crontab -e
+```
+
+Add the following:
+
+```sh
+0 2 * * * /usr/bin/ls -lh /home > /var/log/home-permissions.log
+```
+
+This logs all home folder permissions every day at 2 AM.
 
 ---
 

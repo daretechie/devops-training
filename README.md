@@ -27,6 +27,7 @@ This repository serves as a structured record of my hands-on experience and lear
   - [Mini Project 5 - Mini Project-Linux Fundamentals](Module-1/mini-project-5/README.md)
   - [Mini Project 6 - Linux Commands Deep Dive](Module-1/mini-project-6/README.md)
   - [Mini Project 7 - Linux Text Editors](Module-1/mini-project-7/README.md)
+  - [Mini Project 8 - User Management on Linux](Module-1/mini-project-8/README.md)
 
   ***
 
