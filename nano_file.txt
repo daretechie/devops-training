@@ -1,0 +1,2 @@
+Hello, this is a Vim hands-on project.
+Welcome to darey.io.

@@ -19,13 +19,19 @@ This repository serves as a structured record of my hands-on experience and lear
 ### 🚀 Projects
 
 - [Module 1 Projects](Module-1/)
+
   - [Mini Project 1 - DevOps Environment Setup Guide](Module-1/mini-project-1/README.md)
   - [Mini Project 2 - Git Version Control Basics](Module-1/mini-project-2/README.md)
   - [Mini Project 3 - Basic Git Commands](Module-1/mini-project-3/README.md)
   - [Mini Project 4 - Git Branching and Merging](Module-1/mini-project-4/README.md)
   - [Mini Project 5 - Mini Project-Linux Fundamentals](Module-1/mini-project-5/README.md)
   - [Mini Project 6 - Linux Commands Deep Dive](Module-1/mini-project-6/README.md)
+  - [Mini Project 7 - Linux Text Editors](Module-1/mini-project-7/README.md)
+
+  ***
+
   - [Capstone Project 1 - Git](Module-1/capstone-project-1/README.md)
+
 - [Module 2 Projects](Module-2/)
 
 ## 📚 Resources
