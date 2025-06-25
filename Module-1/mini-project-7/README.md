@@ -77,13 +77,9 @@ nano nano_file.txt
 
 ![Open Nano Editor](img/img4.png)
 
-### **Enter Insert Mode**
-
-- Press `i`)
-
 ### **Type and Edit Text**
 
-- Begin typing immediately.
+- Begin typing immediately without pressing any key like in vim.
 - Example content:
 
 ```text
