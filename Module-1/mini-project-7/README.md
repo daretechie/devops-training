@@ -91,6 +91,8 @@ Hello, this is a Vim hands-on project.
 Welcome to darey.io.
 ```
 
+![Insert Text in Nano](img/img3.png)
+
 ### **Save Changes**
 
 - Press `Ctrl + O`, then `Enter`
