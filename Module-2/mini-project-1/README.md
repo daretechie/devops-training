@@ -105,6 +105,19 @@ id user3
 
 ---
 
+## ⚡ Error Handling in Shell Scripts
+
+To make scripts robust and avoid errors when folders or users already exist, we use checks like:
+
+```bash
+[ ! -d "$dir" ] && mkdir "$dir"           # Only create if folder doesn't exist
+id "$user" &>/dev/null || useradd "$user" # Only add user if not found
+```
+
+This prevents crashes and makes your scripts reusable and reliable.
+
+---
+
 ## ⚠️ Troubleshooting & Common Issues
 
 | Problem                                 | Cause                                | Solution                                                          |
@@ -117,7 +130,7 @@ id user3
 
 ---
 
-## 🧠 What is a Shebang?
+## 🫠 What is a Shebang?
 
 At the top of your script:
 
@@ -127,10 +140,40 @@ At the top of your script:
 
 This line tells the system to use the **Bash shell** to run your script. It’s called a **shebang**.
 
-Other options:
+### ❀ Significance of Shebang
+
+- **Defines the Interpreter**: Ensures the correct shell (e.g., bash, sh, zsh) is used.
+- **Enables Portability**: Scripts run consistently across different systems.
+- **Avoids Confusion**: Without it, the system might not execute the script as expected.
+
+Alternative example:
 
 ```bash
 #!/bin/sh   # for POSIX-compliant shell
+```
+
+---
+
+## 🤖 Script Debugging with `set -x`
+
+To trace and debug script execution:
+
+```bash
+#!/bin/bash
+set -x   # Enable debugging
+
+# Commands here...
+```
+
+### Use Cases:
+
+- Logs each command before execution.
+- Helps trace failures or logic bugs.
+
+You can disable debugging mid-script with:
+
+```bash
+set +x
 ```
 
 ---
@@ -164,3 +207,5 @@ Variables store data like strings or numbers. `echo` is used to display them.
 ## 🏁 Conclusion
 
 This hands-on scripting task demonstrated how to automate folder and user creation, manage permissions, and use variables in Bash. Shell scripting is essential for every DevOps engineer—helping you automate, replicate, and scale tasks efficiently.
+
+---
