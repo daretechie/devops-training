@@ -34,6 +34,7 @@ This repository serves as a structured record of my hands-on experience and lear
   - [Capstone Project 1 - Git](Module-1/capstone-project-1/README.md)
 
 - [Module 2 Projects](Module-2/)
+  - [Mini Project 1 - Shell Scripting](Module-2/mini-project-1/README.md)
 
 ## 📚 Resources
 
