@@ -1,4 +1,4 @@
-# ✍️ Adding Comments in Bash Scripts
+# ✍️ Adding Comments in Bash Scripts (with Practical Script)
 
 ### 💬 What Are Comments?
 
@@ -16,24 +16,92 @@ Comments are ignored by the shell interpreter, so they don't affect script execu
 
 ---
 
-### 🧵 Single-Line Comments
+## ✅ Step-by-Step: Create `commented_script.sh`
+
+### 1. **Create the Script File**
 
 ```bash
-# This is a single-line comment
-echo "Welcome to Shell Scripting!" # Inline comment
+vim commented_script.sh
 ```
 
-## ![single-line-comment](img/Screenshot%20from%202025-07-02%2008-19-12.png)
-
-### 🧱 Multiple Single-Line Comments (For Multi-line Thoughts)
+Paste this into the file:
 
 ```bash
-# This script creates folders and users
-# Useful for onboarding new employees
-# Only run this with sudo privileges
+#!/bin/bash
+
+# ---------------------------------------------
+# This script demonstrates how to use comments
+# and basic Bash scripting functionality.
+# It prints welcome and goodbye messages,
+# creates a folder, and lists contents.
+# ---------------------------------------------
+
+# Print a welcome message
+echo "Welcome to the Bash Scripting Tutorial!"  # Inline comment
+
+# Create a test directory if it doesn't exist
+[ ! -d "TestFolder" ] && mkdir TestFolder
+
+# List files and folders in the current directory
+echo "Listing current directory contents:"
+ls -lah
+
+# Goodbye message
+echo "Script execution complete. Goodbye!"
 ```
 
-![multi-line-comment](img/Screenshot%20from%202025-07-02%2008-21-01.png)
+![commented-script](img/Screenshot%20from%202025-07-02%2008-50-10.png)
+
+---
+
+### 2. **Make the Script Executable**
+
+```bash
+chmod u+x commented_script.sh
+```
+
+![executable-script](img/Screenshot%20from%202025-07-02%2008-52-43.png)
+
+---
+
+### 3. **Run the Script**
+
+```bash
+./commented_script.sh
+```
+
+![run-script](img/Screenshot%20from%202025-07-02%2008-53-15.png)
+
+---
+
+## 💬 Summary of Comment Types
+
+### Shebang:
+
+```bash
+#!/bin/bash
+```
+
+Defines the interpreter for the script.
+
+### Single-Line Comments:
+
+```bash
+# This is a comment
+```
+
+### Inline Comments:
+
+```bash
+echo "Hello"  # This explains the command
+```
+
+### Simulated Multi-Line Comments:
+
+```bash
+# Line 1 of comment
+# Line 2 of comment
+```
 
 ---
 
@@ -52,11 +120,14 @@ echo "Welcome to Shell Scripting!" # Inline comment
 
 ### ⚠️ Common Mistakes & Troubleshooting
 
-| Mistake                             | Explanation                               | Fix                                    |
-| ----------------------------------- | ----------------------------------------- | -------------------------------------- |
-| Using `//` or `/* */`               | Those are not valid in Bash               | Use `#` instead                        |
-| Commenting in the wrong place       | May break code or cause unexpected output | Always place comments outside commands |
-| Forgetting to comment complex logic | Others may not understand intent          | Add summary before tricky blocks       |
+| Mistake                             | Explanation                               | Fix                                              |
+| ----------------------------------- | ----------------------------------------- | ------------------------------------------------ |
+| Using `//` or `/* */`               | Those are not valid in Bash               | Use `#` instead                                  |
+| Commenting in the wrong place       | May break code or cause unexpected output | Always place comments outside commands           |
+| Forgetting to comment complex logic | Others may not understand intent          | Add summary before tricky blocks                 |
+| `Permission denied` when running    | Missing execute permission                | Run: `chmod u+x commented_script.sh`             |
+| `vim: command not found`            | Vim not installed                         | Run: `sudo apt install vim`                      |
+| `TestFolder` not created            | Directory already exists                  | Use: `[ ! -d "TestFolder" ] && mkdir TestFolder` |
 
 ---
 
@@ -80,6 +151,15 @@ While Bash and sh (Shell) are similar, always verify which shell your script run
 
 ---
 
-### ✅ You're Ready!
+## 🏁 Conclusion
 
-Mastering comments means writing scripts others (and future-you) can read with confidence. As you head into larger projects, effective commenting will become one of your most valuable skills.
+Mastering comments means writing scripts that both you and others can easily understand—today and in the future. As your projects grow in complexity, effective commenting will become one of your most valuable skills.
+
+- In this task, we’ve learned how to:
+- Write functional Bash scripts with clear documentation
+- Use shebangs to define interpreters for portability
+- Add single-line, inline, and multi-line comments effectively
+- Perform basic scripting tasks like creating directories and printing messages
+- Handle common permission issues and errors
+
+With these skills, we're now equipped to write clean, maintainable Bash scripts that communicate both logic and intent.
