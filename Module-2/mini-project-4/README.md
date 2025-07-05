@@ -1,0 +1,5 @@
+## 📋 Error Handling in Shell Scripting
+
+Error handling is a crucial aspect of scripting that involves anticipating and managing issues such as invalid input, failed command execution, or unavailable resources. In this project, I learned how to integrate checks and validation logic into shell scripts to ensure reliability and improve user feedback. One important technique is checking exit codes using `$?` to detect failure, and using conditional statements (`if`, `else`) to branch logic based on expected outcomes.
+
+A practical example was handling the potential failure of creating an AWS S3 bucket that already exists. By using `aws s3api head-bucket` before attempting `create-bucket`, I was able to gracefully detect the existence of a bucket and avoid script failure. This experience taught me to design scripts that are not just functional but also fault-tolerant and user-aware. As a result, I now understand how to build scripts that report useful errors, validate user input, avoid redundancy, and gracefully handle unexpected conditions.
