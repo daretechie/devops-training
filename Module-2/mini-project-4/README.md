@@ -71,6 +71,10 @@ create_s3_buckets
 
 ---
 
+![Output showing success and already existing buckets](img/image%20copy.png)
+
+---
+
 ## 🧰 Troubleshooting Table
 
 | Issue                           | Cause                                  | Solution                                                  |
