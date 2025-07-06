@@ -173,6 +173,8 @@ Activate a specific profile for the current terminal session:
 export AWS_PROFILE=testing
 ```
 
+![Successfully run](img/image%20copy%202.png)
+
 ---
 
 ## ❗ Troubleshooting Tips
@@ -192,7 +194,7 @@ export AWS_PROFILE=testing
 - `-z "$VAR"`: Tests if variable is empty.
 - Use `return 1` in functions to gracefully exit without crashing the entire script.
 
-📷 _\[Insert screenshot: `which aws`, `echo $AWS_PROFILE`]_
+![`which aws`, `echo $AWS_PROFILE`](img/image%20copy.png)
 
 ---
 
