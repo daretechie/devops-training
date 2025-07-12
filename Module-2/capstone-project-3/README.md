@@ -299,6 +299,11 @@ gunicorn marketpeak.wsgi:application --bind 127.0.0.1:8001
 
 ---
 
+## 🚀 Live Demo
+
+You can view the deployed MarketPeak E-Commerce site here: [http://44.203.38.56/](http://44.203.38.56/)
+
+---
 
 ## 7. 📬 Contact & Submission
 
