@@ -46,6 +46,7 @@ This repository serves as a structured record of my hands-on experience and lear
 ---
 
 - [Capstone Project 2 - Shell Scripting](Module-2/capstone-project-2/README.md)
+- [Capstone Project 2 - MarketPeak E-Commerce Deployment](Module-2/capstone-project-3/README.md)
 
 ---
 
