@@ -13,7 +13,7 @@ Automating IAM resource management in AWS is critical as teams scale. This proje
 - IAM permissions to manage users, groups, and policies
 - Completion of Linux and shell scripting fundamentals
 
-📷 _\[Insert screenshot: AWS CLI configured and working]_
+![AWS CLI configured and working](img/Screenshot%20from%202025-07-15%2017-18-43.png)
 
 ---
 
@@ -80,13 +80,11 @@ main() {
 main
 ```
 
-[AWS IAM manager]
+> The extented script can be found here [AWS IAM manager](https://github.com/daretechie/devops-training/blob/main/Module-2/mini-project-9/aws-iam-manager.sh)
 
 ---
 
-📷 _\[Insert screenshot: script displayed in terminal]_
-
----
+![script displayed in terminal](img/image.png)
 
 ### ✅ Make Script Executable and Run
 
@@ -97,7 +95,7 @@ chmod +x aws-iam-manager.sh
 ./aws-iam-manager.sh
 ```
 
-📷 _\[Insert screenshot: successful execution or IAM Console showing created users/groups]_
+![successful execution or IAM Console showing created users/groups](img/Screenshot%20from%202025-07-15%2017-33-44.png)
 
 ---
 
@@ -166,7 +164,7 @@ This traces each line as it's executed—great for identifying incorrect argumen
 | `EntityAlreadyExists` errors   | User or group already exists | Script handles this—outputs message and skips     |
 | `AccessDenied` errors          | Missing IAM permissions      | Attach IAM full-access policy to the AWS CLI user |
 
-📷 _\[Insert screenshot: CLI error with AccessDenied and fix]_
+![CLI error with AccessDenied and fix](img/Screenshot%20from%202025-07-15%2017-38-30.png)
 
 ---
 
@@ -236,9 +234,3 @@ Helps in identifying which line fails during script execution.
 ## 🏁 Conclusion
 
 This project extends basic shell scripting into real-world AWS IAM automation using arrays, loops, functions, and CLI integration. The script is reusable, handles errors gracefully, and promotes safe cloud operations at scale.
-
-Next steps might include:
-
-- Adding role-based policies
-- Logging all AWS CLI outputs
-- Triggering scripts via cron for scheduled IAM tasks

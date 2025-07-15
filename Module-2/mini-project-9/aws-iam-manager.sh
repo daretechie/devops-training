@@ -9,7 +9,7 @@ IAM_USER_NAMES=("user1" "user2" "user3" "user4" "user5")
 create_iam_users() {
   echo "Starting IAM user creation..."
   for user in "${IAM_USER_NAMES[@]}"; do
-    aws iam getuser --user-name "$user" &>dev/null
+    aws iam get-user --user-name "$user" &>/dev/null
     if [ $? -ne 0 ]; then
       aws iam create-user --user-name "$user" && echo "Created IAM user: $user"
     else
@@ -22,7 +22,7 @@ create_iam_users() {
 # Create admin group and attach AdministratorAccess policy
 create_admin_group() {
   echo "Creating admin group and attaching policy..."
-  aws iam get-group --group-name "admin" &>dev/null
+  aws iam get-group --group-name "admin" &>/dev/null
   if [ $? -ne 0 ]; then
     aws iam create-group --group-name "admin" && echo "Group created"
   else 
