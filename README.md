@@ -45,6 +45,7 @@ This repository serves as a structured record of my hands-on experience and lear
   - [Mini Project 6 - AWS Account Creation Project](Module-2/mini-project-6/README.md)
   - [Mini Project 7 - Introduction to Cloud Computing – Security & IAM](Module-2/mini-project-7/README.md)
   - [Mini Project 8 - Access Management in Action](Module-2/mini-project-8/README.md)
+  - [Mini Project 9 - AWS IAM Management with Shell Script](Module-2/mini-project-9/README.md)
 
   -
 
