@@ -42,6 +42,11 @@ This repository serves as a structured record of my hands-on experience and lear
   - [Mini Project 3 - Control Flow in Bash Scripts](Module-2/mini-project-3/README.md)
   - [Mini Project 4 - Error Handling in Shell Scripting](Module-2/mini-project-4/README.md)
   - [Mini Project 5 - Functions in Shell Scripting](Module-2/mini-project-5/README.md)
+  - [Mini Project 6 - AWS Account Creation Project](Module-2/mini-project-6/README.md)
+  - [Mini Project 7 - Introduction to Cloud Computing – Security & IAM](Module-2/mini-project-7/README.md)
+  - [Mini Project 8 - Access Management in Action](Module-2/mini-project-8/README.md)
+
+  -
 
 ---
 
