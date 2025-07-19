@@ -47,7 +47,7 @@ This repository serves as a structured record of my hands-on experience and lear
   - [Mini Project 8 - Access Management in Action](Module-2/mini-project-8/README.md)
   - [Mini Project 9 - AWS IAM Management with Shell Script](Module-2/mini-project-9/README.md)
 
-  -
+  - [Mini Project 10 - AWS S3 Bucket Management](Module-2/mini-project-10/README.md)
 
 ---
 

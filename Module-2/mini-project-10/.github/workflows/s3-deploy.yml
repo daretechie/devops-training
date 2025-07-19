@@ -1,0 +1,52 @@
+name: Deploy to S3
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+env:
+  AWS_REGION: us-east-1
+  S3_BUCKET: my-app-prod
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v3
+
+      - name: Configure AWS credentials
+        uses: aws-actions/configure-aws-credentials@v2
+        with:
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws-region: ${{ env.AWS_REGION }}
+
+      - name: Create S3 bucket if not exists
+        run: |
+          aws s3api head-bucket --bucket ${{ env.S3_BUCKET }} 2>/dev/null || \
+          aws s3 mb s3://${{ env.S3_BUCKET }} --region ${{ env.AWS_REGION }}
+
+      - name: Enable versioning
+        run: |
+          aws s3api put-bucket-versioning \
+            --bucket ${{ env.S3_BUCKET }} \
+            --versioning-configuration Status=Enabled
+
+      - name: Deploy static files
+        run: |
+          aws s3 sync ./dist s3://${{ env.S3_BUCKET }} \
+            --delete \
+            --exclude "*.git/*" \
+            --cache-control "max-age=31536000"
+
+      - name: Invalidate CloudFront (if applicable)
+        run: |
+          if [ ! -z "${{ secrets.CLOUDFRONT_DISTRIBUTION_ID }}" ]; then
+            aws cloudfront create-invalidation \
+              --distribution-id ${{ secrets.CLOUDFRONT_DISTRIBUTION_ID }} \
+              --paths "/*"
+          fi
