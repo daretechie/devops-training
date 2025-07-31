@@ -29,8 +29,6 @@ This repository serves as a structured record of my hands-on experience and lear
   - [Mini Project 7 - Linux Text Editors](Module-1/mini-project-7/README.md)
   - [Mini Project 8 - User Management on Linux](Module-1/mini-project-8/README.md)
 
----
-
 - [Capstone Project 1 - Git](Module-1/capstone-project-1/README.md)
 
 ---
@@ -46,10 +44,8 @@ This repository serves as a structured record of my hands-on experience and lear
   - [Mini Project 7 - Introduction to Cloud Computing – Security & IAM](Module-2/mini-project-07/README.md)
   - [Mini Project 8 - Access Management in Action](Module-2/mini-project-08/README.md)
   - [Mini Project 9 - AWS IAM Management with Shell Script](Module-2/mini-project-09/README.md)
-
   - [Mini Project 10 - AWS S3 Bucket Management](Module-2/mini-project-10/README.md)
-
----
+  - [Mini Project 11 - AWS VPC Creation](Module-2/mini-project-11/README.md)
 
 - [Capstone Project 2 - Shell Scripting](Module-2/capstone-project-2/README.md)
 - [Capstone Project 3 - MarketPeak E-Commerce Deployment](Module-2/capstone-project-3/README.md)

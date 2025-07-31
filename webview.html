@@ -1,0 +1,513 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>AWS VPC Application Architecture Flow</title>
+    <style>
+      body {
+        font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
+        margin: 0;
+        padding: 20px;
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        min-height: 100vh;
+      }
+
+      .container {
+        max-width: 1400px;
+        margin: 0 auto;
+        background: white;
+        border-radius: 15px;
+        padding: 30px;
+        box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
+      }
+
+      h1 {
+        text-align: center;
+        color: #2c3e50;
+        margin-bottom: 10px;
+        font-size: 2.2em;
+      }
+
+      .subtitle {
+        text-align: center;
+        color: #7f8c8d;
+        margin-bottom: 40px;
+        font-size: 1.1em;
+      }
+
+      .architecture {
+        display: grid;
+        grid-template-columns: 1fr 2fr 1fr;
+        gap: 30px;
+        margin-bottom: 40px;
+      }
+
+      .external {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        gap: 20px;
+      }
+
+      .vpc-container {
+        border: 3px solid #3498db;
+        border-radius: 15px;
+        padding: 25px;
+        background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+        position: relative;
+      }
+
+      .vpc-title {
+        position: absolute;
+        top: -15px;
+        left: 20px;
+        background: #3498db;
+        color: white;
+        padding: 5px 15px;
+        border-radius: 20px;
+        font-weight: bold;
+        font-size: 0.9em;
+      }
+
+      .subnets {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 20px;
+        margin-top: 20px;
+      }
+
+      .subnet {
+        border: 2px solid;
+        border-radius: 10px;
+        padding: 20px;
+        position: relative;
+        min-height: 300px;
+      }
+
+      .public-subnet {
+        border-color: #2ecc71;
+        background: linear-gradient(135deg, #d5f4e6 0%, #feffff 100%);
+      }
+
+      .private-subnet {
+        border-color: #e74c3c;
+        background: linear-gradient(135deg, #fadbd8 0%, #feffff 100%);
+      }
+
+      .subnet-title {
+        position: absolute;
+        top: -12px;
+        left: 15px;
+        padding: 4px 12px;
+        border-radius: 15px;
+        font-weight: bold;
+        font-size: 0.85em;
+        color: white;
+      }
+
+      .public-subnet .subnet-title {
+        background: #2ecc71;
+      }
+
+      .private-subnet .subnet-title {
+        background: #e74c3c;
+      }
+
+      .component {
+        background: white;
+        border-radius: 8px;
+        padding: 15px;
+        margin: 10px 0;
+        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+        border-left: 4px solid;
+        transition: transform 0.3s ease, box-shadow 0.3s ease;
+      }
+
+      .component:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 6px 15px rgba(0, 0, 0, 0.15);
+      }
+
+      .web-server {
+        border-left-color: #f39c12;
+      }
+
+      .load-balancer {
+        border-left-color: #9b59b6;
+      }
+
+      .api-server {
+        border-left-color: #3498db;
+      }
+
+      .database {
+        border-left-color: #e67e22;
+      }
+
+      .nat-gateway {
+        border-left-color: #1abc9c;
+      }
+
+      .component h3 {
+        margin: 0 0 8px 0;
+        font-size: 1.1em;
+        color: #2c3e50;
+      }
+
+      .component p {
+        margin: 0;
+        font-size: 0.9em;
+        color: #7f8c8d;
+        line-height: 1.4;
+      }
+
+      .external-component {
+        background: white;
+        border-radius: 10px;
+        padding: 20px;
+        box-shadow: 0 6px 12px rgba(0, 0, 0, 0.1);
+        text-align: center;
+        border: 2px solid;
+        width: 150px;
+      }
+
+      .users {
+        border-color: #8e44ad;
+        background: linear-gradient(135deg, #f4ecf7 0%, #feffff 100%);
+      }
+
+      .analytics-vpc {
+        border-color: #34495e;
+        background: linear-gradient(135deg, #ecf0f1 0%, #feffff 100%);
+      }
+
+      .flow-arrows {
+        position: relative;
+        margin: 30px 0;
+      }
+
+      .flow-step {
+        display: flex;
+        align-items: center;
+        margin: 15px 0;
+        padding: 15px;
+        background: linear-gradient(90deg, #667eea 0%, #764ba2 100%);
+        color: white;
+        border-radius: 25px;
+        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+      }
+
+      .step-number {
+        background: rgba(255, 255, 255, 0.2);
+        border-radius: 50%;
+        width: 30px;
+        height: 30px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        margin-right: 15px;
+        font-weight: bold;
+      }
+
+      .gateway {
+        position: absolute;
+        background: white;
+        border: 2px solid #95a5a6;
+        border-radius: 8px;
+        padding: 10px;
+        font-size: 0.8em;
+        font-weight: bold;
+        color: #2c3e50;
+        box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
+      }
+
+      .internet-gateway {
+        top: -20px;
+        right: 50%;
+        transform: translateX(50%);
+        background: #3498db;
+        color: white;
+      }
+
+      .security-info {
+        margin-top: 30px;
+        padding: 20px;
+        background: linear-gradient(135deg, #ffe8d6 0%, #fff 100%);
+        border-radius: 10px;
+        border-left: 5px solid #f39c12;
+      }
+
+      .security-table {
+        width: 100%;
+        border-collapse: collapse;
+        margin-top: 15px;
+      }
+
+      .security-table th,
+      .security-table td {
+        padding: 12px;
+        text-align: left;
+        border-bottom: 1px solid #ddd;
+      }
+
+      .security-table th {
+        background: #f8f9fa;
+        font-weight: bold;
+        color: #2c3e50;
+      }
+
+      .access-yes {
+        color: #27ae60;
+        font-weight: bold;
+      }
+
+      .access-no {
+        color: #e74c3c;
+        font-weight: bold;
+      }
+
+      .access-limited {
+        color: #f39c12;
+        font-weight: bold;
+      }
+
+      @media (max-width: 1200px) {
+        .architecture {
+          grid-template-columns: 1fr;
+          gap: 20px;
+        }
+
+        .subnets {
+          grid-template-columns: 1fr;
+        }
+      }
+
+      .legend {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 15px;
+        justify-content: center;
+        margin: 20px 0;
+        padding: 20px;
+        background: #f8f9fa;
+        border-radius: 10px;
+      }
+
+      .legend-item {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        font-size: 0.9em;
+      }
+
+      .legend-color {
+        width: 20px;
+        height: 20px;
+        border-radius: 4px;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="container">
+      <h1>🏗️ AWS VPC Application Architecture Flow</h1>
+      <p class="subtitle">
+        E-commerce Bookstore: Real-World Production Deployment
+      </p>
+
+      <div class="architecture">
+        <div class="external">
+          <div class="external-component users">
+            <h3>👥 Internet Users</h3>
+            <p>Customers browsing bookstore</p>
+            <p><strong>www.bookstore.com</strong></p>
+          </div>
+        </div>
+
+        <div class="vpc-container">
+          <div class="vpc-title">🏢 Main VPC (10.0.0.0/16)</div>
+          <div class="gateway internet-gateway">🌐 Internet Gateway</div>
+
+          <div class="subnets">
+            <div class="subnet public-subnet">
+              <div class="subnet-title">🌍 Public Subnet (10.0.1.0/24)</div>
+
+              <div class="component load-balancer">
+                <h3>⚖️ Application Load Balancer</h3>
+                <p>Routes traffic, SSL termination</p>
+                <p><strong>Port:</strong> 80, 443</p>
+              </div>
+
+              <div class="component web-server">
+                <h3>🖥️ Web Server (Nginx)</h3>
+                <p>Serves frontend, reverse proxy</p>
+                <p><strong>Instance:</strong> t3.micro</p>
+              </div>
+
+              <div class="component nat-gateway">
+                <h3>🔄 NAT Gateway</h3>
+                <p>Outbound internet for private subnet</p>
+                <p><strong>Elastic IP:</strong> Assigned</p>
+              </div>
+            </div>
+
+            <div class="subnet private-subnet">
+              <div class="subnet-title">🔒 Private Subnet (10.0.2.0/24)</div>
+
+              <div class="component api-server">
+                <h3>🔧 Backend API Server</h3>
+                <p>Flask/Node.js application</p>
+                <p><strong>Port:</strong> 8000</p>
+              </div>
+
+              <div class="component database">
+                <h3>🗄️ RDS Database</h3>
+                <p>MySQL - Customer & product data</p>
+                <p><strong>Port:</strong> 3306</p>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="external">
+          <div class="external-component analytics-vpc">
+            <h3>📊 Analytics VPC</h3>
+            <p>Separate team/environment</p>
+            <p><strong>VPC Peering</strong></p>
+          </div>
+        </div>
+      </div>
+
+      <div class="legend">
+        <div class="legend-item">
+          <div class="legend-color" style="background: #2ecc71"></div>
+          <span>Public Subnet (Internet Access)</span>
+        </div>
+        <div class="legend-item">
+          <div class="legend-color" style="background: #e74c3c"></div>
+          <span>Private Subnet (No Direct Internet)</span>
+        </div>
+        <div class="legend-item">
+          <div class="legend-color" style="background: #3498db"></div>
+          <span>VPC Boundary</span>
+        </div>
+        <div class="legend-item">
+          <div class="legend-color" style="background: #f39c12"></div>
+          <span>Web Tier</span>
+        </div>
+        <div class="legend-item">
+          <div class="legend-color" style="background: #9b59b6"></div>
+          <span>Load Balancer</span>
+        </div>
+      </div>
+
+      <div class="flow-arrows">
+        <h2 style="text-align: center; color: #2c3e50; margin-bottom: 25px">
+          📋 Traffic Flow Sequence
+        </h2>
+
+        <div class="flow-step">
+          <div class="step-number">1</div>
+          <div>
+            <strong>User Request:</strong> Customer visits www.bookstore.com →
+            Internet Gateway → ALB in Public Subnet
+          </div>
+        </div>
+
+        <div class="flow-step">
+          <div class="step-number">2</div>
+          <div>
+            <strong>Load Balancing:</strong> ALB routes request to Web Server
+            (Nginx) in Public Subnet
+          </div>
+        </div>
+
+        <div class="flow-step">
+          <div class="step-number">3</div>
+          <div>
+            <strong>API Processing:</strong> Web Server forwards API calls to
+            Backend Server in Private Subnet
+          </div>
+        </div>
+
+        <div class="flow-step">
+          <div class="step-number">4</div>
+          <div>
+            <strong>Database Query:</strong> Backend Server queries RDS Database
+            in Private Subnet (internal network)
+          </div>
+        </div>
+
+        <div class="flow-step">
+          <div class="step-number">5</div>
+          <div>
+            <strong>Analytics Access:</strong> Analytics VPC accesses data via
+            VPC Peering (no internet routing)
+          </div>
+        </div>
+
+        <div class="flow-step">
+          <div class="step-number">6</div>
+          <div>
+            <strong>Outbound Updates:</strong> Private instances reach internet
+            via NAT Gateway for updates/patches
+          </div>
+        </div>
+      </div>
+
+      <div class="security-info">
+        <h3>🔐 Security & Access Control Matrix</h3>
+        <table class="security-table">
+          <thead>
+            <tr>
+              <th>Component</th>
+              <th>Internet Access</th>
+              <th>Inbound Traffic</th>
+              <th>Security Group Rules</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td><strong>Load Balancer</strong></td>
+              <td class="access-yes">✅ Full</td>
+              <td class="access-yes">✅ HTTP/HTTPS from anywhere</td>
+              <td>80, 443 from 0.0.0.0/0</td>
+            </tr>
+            <tr>
+              <td><strong>Web Server</strong></td>
+              <td class="access-yes">✅ Full</td>
+              <td class="access-limited">⚠️ ALB + SSH only</td>
+              <td>80 from ALB, 22 from admin</td>
+            </tr>
+            <tr>
+              <td><strong>API Server</strong></td>
+              <td class="access-limited">⚠️ Outbound only (NAT)</td>
+              <td class="access-no">❌ Web Server only</td>
+              <td>8000 from web server SG</td>
+            </tr>
+            <tr>
+              <td><strong>RDS Database</strong></td>
+              <td class="access-no">❌ No internet</td>
+              <td class="access-no">❌ API Server only</td>
+              <td>3306 from API server SG</td>
+            </tr>
+            <tr>
+              <td><strong>Analytics VPC</strong></td>
+              <td class="access-limited">⚠️ Via peering</td>
+              <td class="access-limited">⚠️ Peered VPC only</td>
+              <td>Custom ports from main VPC CIDR</td>
+            </tr>
+          </tbody>
+        </table>
+
+        <div style="margin-top: 15px; font-size: 0.9em; color: #7f8c8d">
+          <strong>Key Benefits:</strong>
+          • Database never exposed to internet • Layered security with multiple
+          checkpoints • Scalable architecture with load balancing • Secure
+          cross-VPC communication • Cost-effective NAT Gateway for outbound
+          access
+        </div>
+      </div>
+    </div>
+  </body>
+</html>
