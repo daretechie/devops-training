@@ -46,6 +46,8 @@ This repository serves as a structured record of my hands-on experience and lear
   - [Mini Project 9 - AWS IAM Management with Shell Script](Module-2/mini-project-09/README.md)
   - [Mini Project 10 - AWS S3 Bucket Management](Module-2/mini-project-10/README.md)
   - [Mini Project 11 - AWS VPC Creation](Module-2/mini-project-11/README.md)
+  - [Mini Project 12 - AWS Security Groups and Network ACLs](Module-2/mini-project-12/README.md)
+  - [Mini Project 13 - Shell Scripting + Cloud Foundations](Module-2/mini-project-13/README.md)
 
 - [Capstone Project 2 - Shell Scripting](Module-2/capstone-project-2/README.md)
 - [Capstone Project 3 - MarketPeak E-Commerce Deployment](Module-2/capstone-project-3/README.md)
