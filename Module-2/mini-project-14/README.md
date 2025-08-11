@@ -23,3 +23,20 @@ Before you begin, ensure you have the following installed and configured:
 The project is built around two main functions: `create_ec2_instances()` and `create_s3_buckets()`.
 
 ##### **`create_ec2_instances()`**
+
+This function provisions EC2 instances using the `aws ec2 run-instances` command.
+
+**Usage:**
+
+```bash
+aws ec2 run-instances \
+    --image-id "ami-0cd59ecaf368e5ccf" \
+    --instance-type "t2.micro" \
+    --count 5 \
+    --key-name MyKeyPair \
+    --region eu-west-2
+```
+
+- **`$?:`** This special variable captures the exit status of the previous command. A value of `0` indicates success. We use this to check if the `aws ec2 run-instances` command was successful.
+
+##### **`create_s3_buckets()`**
