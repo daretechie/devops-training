@@ -13,11 +13,10 @@ This script provisions **EC2 instances** and **S3 buckets** using the AWS CLI, w
 #!/bin/bash
 
 create_ec2_instances() {
-    # Default values that can be overridden by parameters
-    local instance_type="${1:-t2.micro}"  # Make instance type configurable
-    local ami_id="${2:-ami-0cd59ecaf368e5ccf}"
-    local count="${3:-2}"
-    local region="${4:-eu-west-2}"
+    instance_type="t2.micro"
+    ami_id="ami-0cd59ecaf368e5ccf"
+    count=2
+    region="eu-west-2"
 
     aws ec2 run-instances \
         --image-id "$ami_id" \
@@ -46,10 +45,8 @@ create_ec2_instances
 
 ```bash
 create_s3_buckets() {
-    local company="datawise"
-    local max_retries=3  # Maximum number of retry attempts
-    local retry_delay=2  # Delay between retries in seconds
-    local departments=("Marketing" "Sales" "HR" "Operations" "Media")
+    company="datawise"
+    departments=("Marketing" "Sales" "HR" "Operations" "Media")
 
     for department in "${departments[@]}"; do
         local bucket_name="${company}-${department}-data-bucket"
