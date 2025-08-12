@@ -1,6 +1,7 @@
 # 🚀 Mini Project – Creating AWS Resources with Functions & Arrays
 
-Automating AWS resource creation with functions and arrays makes infrastructure provisioning faster, repeatable, and error-free.
+Automating AWS resource creation with functions and arrays makes provisioning faster, repeatable, and error-free.
+This script provisions **EC2 instances** and **S3 buckets** using the AWS CLI, with dynamic parameters, environment detection, and validation.
 
 ---
 
@@ -34,7 +35,7 @@ create_ec2_instances() {
 create_ec2_instances
 ```
 
-📷 _\[Insert screenshot: EC2 instances launched in AWS console]_
+![EC2 instances launched in AWS console](./images/ec2_instances.png)
 
 ---
 
@@ -61,33 +62,285 @@ create_s3_buckets() {
 create_s3_buckets
 ```
 
-📷 _\[Insert screenshot: S3 bucket list in AWS console]_
+![S3 bucket list in AWS console](./images/s3_buckets.png)
 
 ---
 
-## 🛠️ Troubleshooting Tips
+## 🧾 Full Script: `aws_resources.sh`
 
-| Problem                      | Cause                                   | Solution                                             |
-| ---------------------------- | --------------------------------------- | ---------------------------------------------------- |
-| `InvalidKeyPair.NotFound`    | Key pair not created in AWS             | Create key pair in AWS console before running script |
-| `RequestLimitExceeded`       | API call limit reached                  | Wait and retry, or space out creation commands       |
-| `BucketAlreadyExists`        | S3 bucket names must be globally unique | Use a unique prefix/suffix in bucket names           |
-| `AWS CLI is not installed`   | CLI not available on the system         | Install via `sudo apt install awscli`                |
-| `AWS profile not configured` | No credentials set                      | Run `aws configure` to set access key and secret     |
+```bash
+#!/bin/bash
+set -euo pipefail
+trap 'echo "❌ Error on line $LINENO" >&2' ERR
 
-📷 _\[Insert screenshot: aws configure setup]_
+# ===== Input Parameters =====
+ENVIRONMENT="${1:-}"
+AMI_ID="${2:-}"
+KEYPAIR="${3:-}"
+REGION="${4:-}"
+COUNT="${5:-}"
+
+# ===== Validate Parameters =====
+if [ $# -ne 5 ]; then
+  echo "Usage: $0 <environment> <ami_id> <keypair_name> <region> <instance_count>"
+  exit 1
+fi
+
+# ===== Environment Check =====
+activate_infra_environment() {
+  case "$1" in
+    local|testing|production) echo "✅ Running in $1 environment..." ;;
+    *) echo "❌ Invalid environment: $1"; exit 2 ;;
+  esac
+}
+
+# ===== AWS CLI Check =====
+check_aws_cli() {
+  if ! command -v aws &>/dev/null; then
+    echo "❌ AWS CLI not installed. Install with 'sudo apt install awscli'."
+    exit 1
+  fi
+}
+
+# ===== AWS Profile Check =====
+check_aws_profile() {
+  if [ -z "${AWS_PROFILE:-}" ] && [ ! -f "$HOME/.aws/credentials" ]; then
+    echo "❌ AWS credentials not found. Run 'aws configure'."
+    exit 1
+  fi
+}
+
+# ===== Function to Create EC2 Instances =====
+create_ec2_instances() {
+  echo "🔍 Checking key pair..."
+  if ! aws ec2 describe-key-pairs --key-names "$KEYPAIR" --region "$REGION" >/dev/null 2>&1; then
+    echo "❌ Key pair '$KEYPAIR' not found in region $REGION."
+    exit 1
+  fi
+
+  echo "🚀 Launching $COUNT EC2 instance(s)..."
+  if aws ec2 run-instances \
+      --image-id "$AMI_ID" \
+      --instance-type "t2.micro" \
+      --count "$COUNT" \
+      --key-name "$KEYPAIR" \
+      --region "$REGION"; then
+    echo "✅ EC2 instances created."
+  else
+    echo "❌ Failed to create EC2 instances."
+  fi
+}
+
+# ===== Function to Create S3 Buckets with Arrays =====
+create_s3_buckets() {
+  company="datawise"
+  departments=("Marketing" "Sales" "HR" "Operations" "Media")
+  timestamp="$(date +%s)"
+
+  for department in "${departments[@]}"; do
+    dep_norm="$(echo "$department" | tr '[:upper:]' '[:lower:]' | tr -s ' ' '-')"
+    bucket_name="${company}-${dep_norm}-${timestamp}-data-bucket"
+
+    echo "📦 Creating bucket: $bucket_name..."
+    if aws s3api create-bucket \
+        --bucket "$bucket_name" \
+        --region "$REGION" \
+        --create-bucket-configuration LocationConstraint="$REGION"; then
+      echo "✅ Bucket '$bucket_name' created."
+    else
+      echo "❌ Failed to create bucket '$bucket_name'. Retrying..."
+      sleep 2
+      aws s3api create-bucket \
+        --bucket "$bucket_name-retry" \
+        --region "$REGION" \
+        --create-bucket-configuration LocationConstraint="$REGION"
+    fi
+  done
+}
+
+# ===== Execution Flow =====
+activate_infra_environment "$ENVIRONMENT"
+check_aws_cli
+check_aws_profile
+create_ec2_instances
+create_s3_buckets
+
+echo "🎯 Provisioning complete."
+```
+
+---
+
+## 🖥️ Script Usage
+
+```bash
+chmod +x aws_resources.sh
+./aws_resources.sh <environment> <ami_id> <keypair_name> <region> <instance_count>
+```
+
+Example:
+
+```bash
+./aws_resources.sh testing ami-0cd59ecaf368e5ccf MyKeyPair eu-west-2 2
+```
+
+# ===== Execution Flow =====
+
+activate_infra_environment "$ENVIRONMENT"
+check_aws_cli
+check_aws_profile
+create_ec2_instances
+create_s3_buckets
+
+echo "🎯 Provisioning complete."
 
 ---
 
 ## 💡 Key Concepts
 
-- **Functions**: Encapsulate commands for reusability.
-- **Arrays**: Store multiple values and iterate over them with loops.
-- **\$?**: Checks the exit status of the last command.
+- **Functions**: Encapsulate/reuse blocks of commands for EC2 and S3 creation.
+- **Arrays**: Store multiple values (e.g., department names) and iterate over them with loops for bulk operations.
+- **Dynamic Parameters**: AMI ID, region, key pair, and instance count passed via script arguments.
+- **$?**: Checks the exit status of the last command to confirm success.
+- **Retries**: Attempt bucket creation again if initial try fails.
 - **Global Uniqueness in S3**: All S3 bucket names must be globally unique.
+
+---
+
+## � Bash & Script Feature Explanations
+
+---
+
+### **1. `set -euo pipefail`**
+
+- **`-e`** → Exit script immediately if any command fails.
+- **`-u`** → Treat unset variables as an error and exit.
+- **`-o pipefail`** → If any command in a pipeline fails, the whole pipeline fails.
+  **Why:** Prevents the script from continuing after an error.
+
+---
+
+### **2. `trap 'echo "❌ Error on line $LINENO"' ERR`**
+
+- **`trap`** → Runs a command when a specific event occurs.
+- **`ERR`** → Triggered when any command returns a non-zero exit code.
+- **`$LINENO`** → Built-in variable showing the line number where the error happened.
+  **Why:** Helps debug exactly where the script fails.
+
+---
+
+### **3. Parameter Variables**
+
+```bash
+ENVIRONMENT="${1:-}"
+AMI_ID="${2:-}"
+KEYPAIR="${3:-}"
+REGION="${4:-}"
+COUNT="${5:-}"
+```
+
+- `${1}`, `${2}` etc. → Arguments passed to the script from the command line.
+- `:-` → Default to empty string if not provided.
+  **Why:** Makes the script flexible — values are passed in when running, not hardcoded.
+
+---
+
+### **4. Environment Check Function**
+
+```bash
+case "$1" in
+  local|testing|production) echo "✅ Running in $1 environment..." ;;
+  *) echo "❌ Invalid environment: $1"; exit 2 ;;
+esac
+```
+
+- **`case`** → Compares `$1` to given patterns (`local`, `testing`, `production`).
+- **`exit 2`** → Stops the script with exit code 2 if invalid.
+  **Why:** Prevents running in the wrong environment.
+
+---
+
+### **5. `command -v aws &>/dev/null`**
+
+- Checks if `aws` CLI is installed.
+- **`&>/dev/null`** → Suppresses output (both stdout and stderr).
+  **Why:** Fails quietly if AWS CLI is missing.
+
+---
+
+### **6. `$?` Exit Status**
+
+```bash
+if [ $? -eq 0 ]; then
+```
+
+- `$?` → Exit code of the last command (`0` = success, non-zero = fail).
+  **Why:** Confirms if EC2 or S3 creation worked before showing success message.
+
+---
+
+### **7. Arrays**
+
+```bash
+departments=("Marketing" "Sales" "HR" "Operations" "Media")
+```
+
+- Stores multiple values in a single variable.
+  **Why:** Makes looping over department names easier.
+
+---
+
+### **8. Looping Through Arrays**
+
+```bash
+for department in "${departments[@]}"; do
+```
+
+- **`"${departments[@]}"`** → All elements in the array.
+  **Why:** Allows creating multiple S3 buckets in one go.
+
+---
+
+### **9. Lowercasing & Replacing Spaces**
+
+```bash
+dep_norm="$(echo "$department" | tr '[:upper:]' '[:lower:]' | tr -s ' ' '-')"
+```
+
+- Converts department name to lowercase and replaces spaces with `-`.
+  **Why:** AWS bucket names must be lowercase and have no spaces.
+
+---
+
+### **10. Retry Logic for Buckets**
+
+```bash
+else
+  echo "❌ Failed... Retrying..."
+  sleep 2
+```
+
+- Waits for 2 seconds before retrying creation.
+  **Why:** Helps in case of temporary AWS API issues.
+
+---
+
+## 🛠️ Troubleshooting
+
+| Problem/Issue                                         | Cause                                                   | Solution/Fix                                                                                    |
+| ----------------------------------------------------- | ------------------------------------------------------- | ----------------------------------------------------------------------------------------------- |
+| `InvalidKeyPair.NotFound`                             | Key pair missing or not created in AWS                  | Create key pair in AWS console before running script / Create via AWS Console → EC2 → Key Pairs |
+| `RequestLimitExceeded`                                | API call limit reached                                  | Wait and retry, or space out creation commands                                                  |
+| `BucketAlreadyExists`                                 | S3 bucket names must be globally unique / Name conflict | Use a unique prefix/suffix or script uses timestamp to avoid clashes                            |
+| `Unable to locate credentials`                        | AWS CLI not configured                                  | Run `aws configure`                                                                             |
+| `AccessDenied`                                        | IAM permissions missing                                 | Add EC2 & S3 permissions to IAM user                                                            |
+| `AWS CLI is not installed` / `command not found: aws` | CLI not available on the system                         | Install via `sudo apt install awscli` or with package manager                                   |
+| `AWS profile not configured`                          | No credentials set                                      | Run `aws configure` to set access key and secret                                                |
+
+📷 _[Insert screenshot: aws configure setup]_
 
 ---
 
 ## 🏁 Conclusion
 
 Using AWS CLI with functions and arrays allows quick provisioning of multiple resources with minimal manual effort. This approach ensures consistent naming, reduces human error, and enables easy scaling of infrastructure. With EC2 provisioning and S3 bucket creation automated, the workflow is efficient and ready for production-level usage.
+
