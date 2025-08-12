@@ -13,10 +13,11 @@ This script provisions **EC2 instances** and **S3 buckets** using the AWS CLI, w
 #!/bin/bash
 
 create_ec2_instances() {
-    instance_type="t2.micro"
-    ami_id="ami-0cd59ecaf368e5ccf"
-    count=2
-    region="eu-west-2"
+    # Default values that can be overridden by parameters
+    local instance_type="${1:-t2.micro}"  # Make instance type configurable
+    local ami_id="${2:-ami-0cd59ecaf368e5ccf}"
+    local count="${3:-2}"
+    local region="${4:-eu-west-2}"
 
     aws ec2 run-instances \
         --image-id "$ami_id" \
@@ -45,17 +46,31 @@ create_ec2_instances
 
 ```bash
 create_s3_buckets() {
-    company="datawise"
-    departments=("Marketing" "Sales" "HR" "Operations" "Media")
+    local company="datawise"
+    local max_retries=3  # Maximum number of retry attempts
+    local retry_delay=2  # Delay between retries in seconds
+    local departments=("Marketing" "Sales" "HR" "Operations" "Media")
 
     for department in "${departments[@]}"; do
-        bucket_name="${company}-${department}-data-bucket"
-        aws s3api create-bucket --bucket "$bucket_name" --region eu-west-2
-        if [ $? -eq 0 ]; then
-            echo "Bucket '$bucket_name' created successfully."
-        else
-            echo "Failed to create bucket '$bucket_name'."
-        fi
+        local bucket_name="${company}-${department}-data-bucket"
+        local attempt=1
+
+        while [ $attempt -le $max_retries ]; do
+            echo "Attempt $attempt to create bucket '$bucket_name'..."
+            if aws s3api create-bucket --bucket "$bucket_name" --region eu-west-2; then
+                echo "✅ Bucket '$bucket_name' created successfully."
+                break
+            else
+                echo "⚠️  Failed to create bucket '$bucket_name' (Attempt $attempt/$max_retries)"
+                if [ $attempt -eq $max_retries ]; then
+                    echo "❌ Giving up on bucket '$bucket_name' after $max_retries attempts"
+                else
+                    echo "Retrying in $retry_delay seconds..."
+                    sleep $retry_delay
+                fi
+                ((attempt++))
+            fi
+        done
     done
 }
 
@@ -79,10 +94,11 @@ AMI_ID="${2:-}"
 KEYPAIR="${3:-}"
 REGION="${4:-}"
 COUNT="${5:-}"
+INSTANCE_TYPE="${6:-t2.micro}" # Default to t2.micro if not provided
 
 # ===== Validate Parameters =====
-if [ $# -ne 5 ]; then
-  echo "Usage: $0 <environment> <ami_id> <keypair_name> <region> <instance_count>"
+if [ $# -ne 6 ]; then
+  echo "Usage: $0 <environment> <ami_id> <keypair_name> <region> <instance_count> <instance_type>"
   exit 1
 fi
 
@@ -118,10 +134,10 @@ create_ec2_instances() {
     exit 1
   fi
 
-  echo "🚀 Launching $COUNT EC2 instance(s)..."
+  echo "🚀 Launching $COUNT EC2 instance(s) of type $INSTANCE_TYPE..."
   if aws ec2 run-instances \
       --image-id "$AMI_ID" \
-      --instance-type "t2.micro" \
+      --instance-type "$INSTANCE_TYPE" \
       --count "$COUNT" \
       --key-name "$KEYPAIR" \
       --region "$REGION"; then
@@ -131,29 +147,37 @@ create_ec2_instances() {
   fi
 }
 
-# ===== Function to Create S3 Buckets with Arrays =====
+# ===== Function to Create S3 Buckets with Arrays & Retry Limit =====
 create_s3_buckets() {
   company="datawise"
   departments=("Marketing" "Sales" "HR" "Operations" "Media")
   timestamp="$(date +%s)"
+  MAX_RETRIES=3
 
   for department in "${departments[@]}"; do
     dep_norm="$(echo "$department" | tr '[:upper:]' '[:lower:]' | tr -s ' ' '-')"
     bucket_name="${company}-${dep_norm}-${timestamp}-data-bucket"
 
-    echo "📦 Creating bucket: $bucket_name..."
-    if aws s3api create-bucket \
-        --bucket "$bucket_name" \
-        --region "$REGION" \
-        --create-bucket-configuration LocationConstraint="$REGION"; then
-      echo "✅ Bucket '$bucket_name' created."
-    else
-      echo "❌ Failed to create bucket '$bucket_name'. Retrying..."
-      sleep 2
-      aws s3api create-bucket \
-        --bucket "$bucket_name-retry" \
-        --region "$REGION" \
-        --create-bucket-configuration LocationConstraint="$REGION"
+    attempt=1
+    success=false
+    while [ $attempt -le $MAX_RETRIES ]; do
+      echo "📦 Attempt $attempt: Creating bucket: $bucket_name..."
+      if aws s3api create-bucket \
+          --bucket "$bucket_name" \
+          --region "$REGION" \
+          --create-bucket-configuration LocationConstraint="$REGION"; then
+        echo "✅ Bucket '$bucket_name' created."
+        success=true
+        break
+      else
+        echo "❌ Failed to create bucket '$bucket_name'. Retrying..."
+        sleep 2
+      fi
+      attempt=$((attempt+1))
+    done
+
+    if [ "$success" = false ]; then
+      echo "❌ Bucket '$bucket_name' could not be created after $MAX_RETRIES attempts."
     fi
   done
 }
@@ -343,4 +367,3 @@ else
 ## 🏁 Conclusion
 
 Using AWS CLI with functions and arrays allows quick provisioning of multiple resources with minimal manual effort. This approach ensures consistent naming, reduces human error, and enables easy scaling of infrastructure. With EC2 provisioning and S3 bucket creation automated, the workflow is efficient and ready for production-level usage.
-
