@@ -194,8 +194,8 @@ echo "🎯 Provisioning complete."
 ## 🖥️ Script Usage
 
 ```bash
-chmod +x aws_resources.sh
-./aws_resources.sh <environment> <ami_id> <keypair_name> <region> <instance_count> <instance_type>
+chmod +x aws_resource_provisioning.sh
+./aws_resource_provisioning.sh <environment> <ami_id> <keypair_name> <region> <instance_count> <instance_type>
 ```
 
 Example:
@@ -239,6 +239,8 @@ echo "🎯 Provisioning complete."
   **Why:** Prevents the script from continuing after an error.
 
 ---
+
+./aws_resources.sh testing ami-0cd59ecaf368e5ccf MyKeyPair eu-west-2 2
 
 ### **2. `trap 'echo "❌ Error on line $LINENO"' ERR`**
 
@@ -356,8 +358,6 @@ else
 | `AccessDenied`                                        | IAM permissions missing                                 | Add EC2 & S3 permissions to IAM user                                                            |
 | `AWS CLI is not installed` / `command not found: aws` | CLI not available on the system                         | Install via `sudo apt install awscli` or with package manager                                   |
 | `AWS profile not configured`                          | No credentials set                                      | Run `aws configure` to set access key and secret                                                |
-
-📷 _[Insert screenshot: aws configure setup]_
 
 ---
 

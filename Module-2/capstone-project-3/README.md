@@ -14,8 +14,8 @@ This guide documents the full development and deployment flow of the **MarketPea
 
 - HTML/CSS, JS (Tooplate Template)
 - Git & GitHub
-- Apache (httpd)
-- Amazon EC2 (Amazon Linux)
+- Apache (apache2)
+- Amazon EC2 (Ubuntu Server)
 - SSH, SCP
 - Gunicorn & Django (for enhancement)
 - Linux (Command Line Operations)
@@ -64,8 +64,8 @@ git init
 
 ```bash
 git add .
-git config --global user.name "YourUsername"
-git config --global user.email "your@email.com"
+git config --global user.name "daretechie"
+git config --global user.email "daretechie@users.noreply.github.com"
 git commit -m "Initial commit with basic e-commerce site structure"
 ```
 
@@ -85,12 +85,12 @@ git push -u origin main
 
 ### 2.1 Launch & Connect to EC2
 
-* Launch a new EC2 instance (Amazon Linux).
+* Launch a new EC2 instance (Ubuntu Server).
 * Allow ports: 22 (SSH), 80 (HTTP)
 * Connected via SSH
 
 ```bash
-ssh -i "your-key.pem" ec2-user@your-ec2-public-ip
+ssh -i "MyKey.pem" ubuntu@44.203.38.56
 ```
 
 ![terminal showing successful EC2 login](img/image3.png)
@@ -107,13 +107,13 @@ cat ~/.ssh/id_rsa.pub
 * Add the key to GitHub SSH keys.
 
 ```bash
-git clone git@github.com:yourusername/MarketPeak_Ecommerce.git
+git clone git@github.com:daretechie/MarketPeak_Ecommerce.git
 ```
 
 **Option B – HTTPS Method:**
 
 ```bash
-git clone https://github.com/yourusername/MarketPeak_Ecommerce.git
+git clone https://github.com/daretechie/MarketPeak_Ecommerce.git
 ```
 
 ![cloned project on EC2](img/Screenshot%20from%202025-07-12%2004-46-09.png)
@@ -127,14 +127,14 @@ sudo systemctl start apache2
 sudo systemctl enable apache2
 ```
 
-![httpd running successfully](img/image4.png)
+![apache2 running successfully](img/image4.png)
 
 ### 2.4 Deploy Website to Apache
 
 ```bash
 sudo rm -rf /var/www/html/*
 sudo cp -r ~/MarketPeak_Ecommerce/* /var/www/html/
-sudo systemctl reload httpd
+sudo systemctl reload apache2
 ```
 
 ![Apache root directory with files](img/image5.png)
@@ -177,7 +177,7 @@ git push origin development
 ```bash
 cd MarketPeak_Ecommerce
 git pull origin main
-sudo systemctl reload httpd
+sudo systemctl reload apache2
 ```
 
 ![pulling latest code on EC2](img/image8.png)
@@ -249,16 +249,16 @@ gunicorn marketpeak.wsgi:application --bind 127.0.0.1:8001
 
 1. **SSH into your EC2 instance**
 
-   ```bash
-   ssh -i your-key.pem ubuntu@your-ec2-ip
-   ```
+```bash
+ssh -i MyKey.pem ubuntu@44.203.38.56
+```
 
 2. **Pull the latest changes**
 
-   ```bash
-   cd ~/MarketPeak_Ecommerce
-   git pull origin master
-   ```
+```bash
+cd ~/MarketPeak_Ecommerce
+git pull origin main
+```
 
 3. **(Optional) Collect static files**
 
@@ -280,13 +280,13 @@ gunicorn marketpeak.wsgi:application --bind 127.0.0.1:8001
 
 | **Issue**                                                | **Cause**                             | **Solution**                                              |
 | -------------------------------------------------------- | ------------------------------------- | --------------------------------------------------------- |
-| 🔒 `Permission denied` on SSH key                        | Incorrect permissions on private key  | Run: `chmod 400 your-key.pem`                             |
+| 🔒 `Permission denied` on SSH key                        | Incorrect permissions on private key  | Run: `chmod 400 MyKey.pem`                                |
 | 🔐 Git authentication failed                             | Wrong credentials or SSH misconfig    | Re-add your SSH key or switch to HTTPS clone URL          |
 | 🌐 Apache default page still shows                       | Project files not copied correctly    | Run: `sudo cp -r ~/MarketPeak_Ecommerce/* /var/www/html/` |
 | 🚫 Static files not loading                              | Static files not collected            | Run: `python manage.py collectstatic`                     |
 | ❌ `CSRF verification failed` when logging in             | Missing trusted IP/domain in settings | Add IP to `CSRF_TRUSTED_ORIGINS` in `settings.py`         |
 | 🔁 Gunicorn port already in use                          | Port conflict or zombie process       | Run: `lsof -i:8001`, then `kill -9 <PID>`                 |
-| 🐍 Gunicorn error: `No module named 'your_project_name'` | Incorrect app name in command         | Use: `gunicorn marketpeak.wsgi:application`               |
+| 🐍 Gunicorn error: `No module named 'marketpeak'`        | Incorrect app name in command         | Use: `gunicorn marketpeak.wsgi:application`               |
 | 🔄 Nginx/Gunicorn not restarting                         | Inactive or stale Gunicorn process    | Run: `pkill gunicorn` then re-run the `gunicorn` command  |
 
 ---
@@ -309,7 +309,7 @@ You can view the deployed MarketPeak E-Commerce site here: [http://44.203.38.56/
 
 * Repository: [GitHub - MarketPeak\_Ecommerce](https://github.com/daretechie/MarketPeak_Ecommerce)
 * Submission Platform: [Darey.io](https://darey.io)
-* Author: \[Your Name]
+* Author: daretechie
 
 ---
 

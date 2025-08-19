@@ -8,19 +8,20 @@ AMI_ID="${2:-}"
 KEYPAIR="${3:-}"
 REGION="${4:-}"
 COUNT="${5:-}"
-INSTANCE_TYPE="${6:-t2.micro}"
+SUBNET_ID="${6:-}"
+INSTANCE_TYPE="${7:-t2.micro}"
 
 # ===== Validate Parameters =====
-if [ $# -ne 5 ]; then
-  echo "Usage: $0 <environment> <ami_id> <keypair_name> <region> <instance_count> <instance_type>"
+if [ $# -lt 5 ] || [ $# -gt 7 ]; then
+  echo "Usage: $0 <environment> <ami_id> <keypair_name> <region> <instance_count> [subnet_id] [instance_type]"
   exit 1
 fi
 
 # ===== Environment Check =====
 activate_infra_environment() {
   case "$1" in
-    local|testing|production) echo "Running in $1 environment..." ;;
-    *) echo "Invalid environment: $1"; exit 2 ;;
+    local|testing|production) echo "Running in $1 environment..." ;; 
+    *) echo "Invalid environment: $1"; exit 2 ;; 
   esac
 }
 
@@ -49,12 +50,20 @@ create_ec2_instances() {
   fi
 
   echo "Launching $COUNT EC2 instance(s) of the $INSTANCE_TYPE..."
-  if aws ec2 run-instances \
+  
+  local aws_cmd
+  aws_cmd=(aws ec2 run-instances \
       --image-id "$AMI_ID" \
       --instance-type "$INSTANCE_TYPE" \
       --count "$COUNT" \
       --key-name "$KEYPAIR" \
-      --region "$REGION"; then
+      --region "$REGION")
+
+  if [ -n "$SUBNET_ID" ]; then
+    aws_cmd+=(--subnet-id "$SUBNET_ID")
+  fi
+
+  if "${aws_cmd[@]}"; then
     echo "EC2 instances created."
   else
     echo "Failed to create EC2 instance."
@@ -113,3 +122,4 @@ create_ec2_instances
 create_s3_buckets
 
 echo "🎯 Provisioning complete."
+
