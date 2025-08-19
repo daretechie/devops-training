@@ -78,7 +78,7 @@ create_s3_buckets
 
 ---
 
-## 🧾 Full Script: `aws_resources.sh`
+## 🧾 Full Script: `aws_resource_provisioning.sh`
 
 ```bash
 #!/bin/bash
@@ -195,7 +195,7 @@ echo "🎯 Provisioning complete."
 
 ```bash
 chmod +x aws_resources.sh
-./aws_resources.sh <environment> <ami_id> <keypair_name> <region> <instance_count>
+./aws_resources.sh <environment> <ami_id> <keypair_name> <region> <instance_count> <instance_type>
 ```
 
 Example:
