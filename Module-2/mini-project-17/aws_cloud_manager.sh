@@ -1,72 +1,63 @@
 #!/bin/bash
 
-# AWS Cloud Manager Script - Complete Implementation
-# This script demonstrates environment variables and positional parameters
-
-# Step 1: Check if exactly one argument is provided
-
-# Step 1: Check if exactly one argument is provided
-if [ "$#" -ne 1 ]; then
-    echo "Usage: $0 <environment>"
-    echo "Available environments: local, testing, production"
-    exit 1
-fi
-
-# Step 2: Capture the environment argument
+# Set the environment from the first argument
 ENVIRONMENT=$1
 
-# Step 3: Define environment-specific variables
-case "$ENVIRONMENT" in 
-"local")
-    echo "=== Running script for Local Environment ==="
-    # Local development environment variables
-    DB_URL="localhost"
-    DB_USER="test_user"
-    DB_PASS="test_pass"
-    AWS_REGION="us-east-1"
-    INSTANCE_TYPE="t2.micro"
-    echo "Database URL: $DB_URL"
-    echo "Database User: $DB_USER"
-    echo "AWS Region: $AWS_REGION"
-    echo "Instance Type: $INSTANCE_TYPE"
-    # Commands for local environment would go here
-    echo "Local development commands would execute here..."
-    ;;
-  "testing")
-    echo "=== Running script for Testing Environment ==="
-    # Testing environment variables (AWS Account 1)
-    DB_URL="testing-db.example.com"
-    DB_USER="testing_user"
-    DB_PASS="testing_pass"
-    AWS_REGION="us-west-2"
-    INSTANCE_TYPE="t3.small"
-    echo "Database URL: $DB_URL"
-    echo "Database User: $DB_USER"
-    echo "AWS Region: $AWS_REGION"
-    echo "Instance Type: $INSTANCE_TYPE"
-    # Commands for testing environment would go here
-    echo "Testing environment commands would execute here..."
-    ;;
-  "production")
-    echo "=== Running script for Production Environment ==="
-    # Production environment variables (AWS Account 2)
-    DB_URL="production-db.example.com"
-    DB_USER="prod_user"
-    DB_PASS="prod_pass"
-    AWS_REGION="us-east-1"
-    INSTANCE_TYPE="t3.medium"
-    echo "Database URL: $DB_URL"
-    echo "Database User: $DB_USER"
-    echo "AWS Region: $AWS_REGION"
-    echo "Instance Type: $INSTANCE_TYPE"
-    # Commands for production environment would go here
-    echo "Production environment commands would execute here..."
-    ;;
-  *)
-    echo "Invalid environment specified: $ENVIRONMENT"
-    echo "Please use 'local', 'testing', or 'production'."
-    exit 2
-    ;;
-esac
+# Check if an environment is provided
+if [ -z "$ENVIRONMENT" ]; then
+  echo "Usage: $0 <local|testing|production>"
+  exit 1
+fi
 
-echo "Script execution completed for $ENVIRONMENT environment."
+echo "Selected environment: $ENVIRONMENT"
+
+# --- AWS CLI Integration ---
+# This section will be filled with AWS CLI commands
+# to provision resources based on the environment.
+
+# Note: Using AMI ami-0c55b159cbfafe1f0 (Amazon Linux 2 in us-east-1). 
+# You may need to change this depending on your region.
+
+case $ENVIRONMENT in
+  local) 
+    echo "Running in local mode. No AWS resources will be provisioned."
+    ;; 
+  testing) 
+    echo "Provisioning testing environment..."
+    # Provision a t2.micro EC2 instance
+    INSTANCE_ID=$(aws ec2 run-instances \
+      --image-id ami-0c55b159cbfafe1f0 \
+      --instance-type t2.micro \
+      --tag-specifications 'ResourceType=instance,Tags=[{Key=Environment,Value=Testing}]' \
+      --query 'Instances[0].InstanceId' \
+      --output text)
+
+    if [ $? -eq 0 ]; then
+      echo "Successfully provisioned EC2 instance with ID: $INSTANCE_ID"
+    else
+      echo "Failed to provision EC2 instance."
+      exit 1
+    fi
+    ;;
+  production) 
+    echo "Provisioning production environment..."
+    # Provision a t2.small EC2 instance
+    INSTANCE_ID=$(aws ec2 run-instances \
+      --image-id ami-0c55b159cbfafe1f0 \
+      --instance-type t2.small \
+      --tag-specifications 'ResourceType=instance,Tags=[{Key=Environment,Value=Production}]' \
+      --query 'Instances[0].InstanceId' \
+      --output text)
+
+    if [ $? -eq 0 ]; then
+      echo "Successfully provisioned EC2 instance with ID: $INSTANCE_ID"
+    else
+      echo "Failed to provision EC2 instance."
+      exit 1
+    fi
+    ;; 
+  *)
+    echo "Invalid environment. Please use 'local', 'testing', or 'production'."
+    exit 1
+    ;; 
+esac

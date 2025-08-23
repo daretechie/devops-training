@@ -21,6 +21,7 @@ Through this hands-on project, you will develop a deep understanding of:
 - Why positional parameters make scripts flexible and user-friendly
 - How proper input validation creates robust, professional-grade automation
 - The relationship between local development, testing, and production environments
+- How to integrate the AWS CLI to provision resources.
 
 ## Project Architecture
 
@@ -36,26 +37,7 @@ Our FinTech scenario demonstrates three distinct infrastructure environments, ea
 
 ### Environment Variables in Action
 
-Environment variables act as configuration switches that allow the same script to behave appropriately in each infrastructure environment. Consider database connectivity as our primary example:
-
-```bash
-# Development Environment
-DB_URL=localhost
-DB_USER=test_user
-DB_PASS=test_pass
-
-# Testing Environment
-DB_URL=testing-db.example.com
-DB_USER=testing_user
-DB_PASS=testing_pass
-
-# Production Environment
-DB_URL=production-db.example.com
-DB_USER=prod_user
-DB_PASS=prod_pass
-```
-
-This approach ensures your script connects to the appropriate resources without requiring code modifications between environments.
+Environment variables act as configuration switches that allow the same script to behave appropriately in each infrastructure environment. For example, our script will use the environment to decide what kind of EC2 instance to provision.
 
 ## Prerequisites
 
@@ -66,6 +48,8 @@ Before beginning this project, ensure you have access to one of the following de
 - **Cloud-based:** AWS EC2 instance (can be named "local-dev" for clarity)
 
 You should also have basic familiarity with command-line operations and text editors like nano or vim.
+
+You will also need the AWS CLI installed and configured with appropriate permissions to create EC2 instances.
 
 ## Step-by-Step Implementation Guide
 
@@ -89,194 +73,75 @@ Create the foundation script that will evolve throughout this project:
 nano aws_cloud_manager.sh
 ```
 
-### Phase 2: Understanding Environment Variables
+### Phase 2: Implementing the Script
 
-**Step 3: Implement Basic Environment Variable Logic**
-
-Begin with this initial implementation to understand how environment variables influence script behavior:
+The final script should incorporate all learned concepts with realistic environment-specific configurations and AWS CLI integration.
 
 ```bash
 #!/bin/bash
 
-# Checking and acting on the environment variable
-if [ "$ENVIRONMENT" == "local" ]; then
-    echo "Running script for Local Environment..."
-    # Commands for local environment
-elif [ "$ENVIRONMENT" == "testing" ]; then
-    echo "Running script for Testing Environment..."
-    # Commands for testing environment
-elif [ "$ENVIRONMENT" == "production" ]; then
-    echo "Running script for Production Environment..."
-    # Commands for production environment
-else
-    echo "No environment specified or recognized."
-    exit 2
-fi
-```
-
-This version demonstrates a crucial learning point: the script depends on an external environment variable that must be explicitly set.
-
-**Step 4: Make Script Executable and Test**
-
-Apply proper permissions and test the behavior:
-
-```bash
-sudo chmod +x aws_cloud_manager.sh
-./aws_cloud_manager.sh
-```
-
-You'll observe that without setting the environment variable, the script falls into the "else" condition, teaching you how environment variables work by default.
-
-**Step 5: Experience Dynamic Behavior**
-
-Set an environment variable and witness the script's adaptive behavior:
-
-```bash
-export ENVIRONMENT=production
-./aws_cloud_manager.sh
-```
-
-Notice how the same script now produces different output, demonstrating the power of environment-driven configuration.
-
-### Phase 3: Avoiding Hard-Coding Pitfalls
-
-**Step 6: Understand Hard-Coding Limitations**
-
-Temporarily modify your script to include a hard-coded environment variable:
-
-```bash
-#!/bin/bash
-
-# Initialize environment variable (demonstrates poor practice)
-ENVIRONMENT="testing"
-
-# Rest of conditional logic remains the same...
-```
-
-When you run this version, observe how it always executes the testing environment logic regardless of your intentions. This exercise reinforces why dynamic configuration is essential.
-
-### Phase 4: Implementing Positional Parameters
-
-**Step 7: Introduce Command-Line Arguments**
-
-Replace the hard-coded approach with positional parameters for true flexibility:
-
-```bash
-#!/bin/bash
-
-# Accessing the first command-line argument
+# Set the environment from the first argument
 ENVIRONMENT=$1
 
-# Acting based on the argument value
-if [ "$ENVIRONMENT" == "local" ]; then
-    echo "Running script for Local Environment..."
-elif [ "$ENVIRONMENT" == "testing" ]; then
-    echo "Running script for Testing Environment..."
-elif [ "$ENVIRONMENT" == "production" ]; then
-    echo "Running script for Production Environment..."
-else
-    echo "Invalid environment specified. Please use 'local', 'testing', or 'production'."
-    exit 2
+# Check if an environment is provided
+if [ -z "$ENVIRONMENT" ]; then
+  echo "Usage: $0 <local|testing|production>"
+  exit 1
 fi
-```
 
-**Step 8: Test Positional Parameter Functionality**
+echo "Selected environment: $ENVIRONMENT"
 
-Verify that your script responds correctly to different arguments:
+# ---
+# AWS CLI Integration
+# This section will be filled with AWS CLI commands
+# to provision resources based on the environment.
 
-```bash
-./aws_cloud_manager.sh local
-./aws_cloud_manager.sh testing
-./aws_cloud_manager.sh production
-./aws_cloud_manager.sh invalid
-```
+# Note: Using AMI ami-0c55b159cbfafe1f0 (Amazon Linux 2 in us-east-1). 
+# You may need to change this depending on your region.
 
-Each command should produce environment-specific output or appropriate error messages.
+case $ENVIRONMENT in
+  local)
+    echo "Running in local mode. No AWS resources will be provisioned."
+    ;;
+  testing)
+    echo "Provisioning testing environment..."
+    # Provision a t2.micro EC2 instance
+    INSTANCE_ID=$(aws ec2 run-instances \
+      --image-id ami-0c55b159cbfafe1f0 \
+      --instance-type t2.micro \
+      --tag-specifications 'ResourceType=instance,Tags=[{Key=Environment,Value=Testing}]' \
+      --query 'Instances[0].InstanceId' \
+      --output text)
 
-### Phase 5: Professional Input Validation
+    if [ $? -eq 0 ]; then
+      echo "Successfully provisioned EC2 instance with ID: $INSTANCE_ID"
+    else
+      echo "Failed to provision EC2 instance."
+      exit 1
+    fi
+    ;;
+  production)
+    echo "Provisioning production environment..."
+    # Provision a t2.small EC2 instance
+    INSTANCE_ID=$(aws ec2 run-instances \
+      --image-id ami-0c55b159cbfafe1f0 \
+      --instance-type t2.small \
+      --tag-specifications 'ResourceType=instance,Tags=[{Key=Environment,Value=Production}]' \
+      --query 'Instances[0].InstanceId' \
+      --output text)
 
-**Step 9: Add Argument Count Validation**
-
-Professional scripts always validate their input to prevent unexpected behavior:
-
-```bash
-#!/bin/bash
-
-# Checking the number of arguments
-if [ "$#" -ne 1 ]; then
-    echo "Usage: $0 <environment>"
-    echo "Available environments: local, testing, production"
+    if [ $? -eq 0 ]; then
+      echo "Successfully provisioned EC2 instance with ID: $INSTANCE_ID"
+    else
+      echo "Failed to provision EC2 instance."
+      exit 1
+    fi
+    ;;
+  *)
+    echo "Invalid environment. Please use 'local', 'testing', or 'production'."
     exit 1
-fi
-
-# Continue with environment argument processing...
-```
-
-This validation ensures users provide exactly one argument, improving script reliability and user experience.
-
-### Phase 6: Complete Implementation
-
-**Step 10: Implement Full Production-Ready Script**
-
-The final script should incorporate all learned concepts with realistic environment-specific configurations:
-
-```bash
-#!/bin/bash
-
-# AWS Cloud Manager Script - Complete Implementation
-# Demonstrates environment variables and positional parameters in real-world context
-
-# Validate exactly one argument is provided
-if [ "$#" -ne 1 ]; then
-    echo "Usage: $0 <environment>"
-    echo "Available environments: local, testing, production"
-    exit 1
-fi
-
-# Capture the environment argument
-ENVIRONMENT=$1
-
-# Define environment-specific variables using case statement (more elegant than if-elif)
-case "$ENVIRONMENT" in
-    "local")
-        echo "=== Running script for Local Environment ==="
-        DB_URL="localhost"
-        DB_USER="test_user"
-        DB_PASS="test_pass"
-        AWS_REGION="us-east-1"
-        INSTANCE_TYPE="t2.micro"
-        echo "Configured for local development with lightweight resources"
-        ;;
-    "testing")
-        echo "=== Running script for Testing Environment ==="
-        DB_URL="testing-db.example.com"
-        DB_USER="testing_user"
-        DB_PASS="testing_pass"
-        AWS_REGION="us-west-2"
-        INSTANCE_TYPE="t3.small"
-        echo "Configured for testing environment with moderate resources"
-        ;;
-    "production")
-        echo "=== Running script for Production Environment ==="
-        DB_URL="production-db.example.com"
-        DB_USER="prod_user"
-        DB_PASS="prod_pass"
-        AWS_REGION="us-east-1"
-        INSTANCE_TYPE="t3.medium"
-        echo "Configured for production environment with robust resources"
-        ;;
-    *)
-        echo "Invalid environment specified: $ENVIRONMENT"
-        echo "Please use 'local', 'testing', or 'production'."
-        exit 2
-        ;;
+    ;;
 esac
-
-echo "Environment variables configured for $ENVIRONMENT deployment"
-echo "Database URL: $DB_URL"
-echo "AWS Region: $AWS_REGION"
-echo "Instance Type: $INSTANCE_TYPE"
-echo "Script execution completed successfully"
 ```
 
 ## Testing and Validation
@@ -286,6 +151,9 @@ echo "Script execution completed successfully"
 Test each environment configuration to ensure proper behavior:
 
 ```bash
+# Make the script executable
+chmod +x aws_cloud_manager.sh
+
 # Test valid environments
 ./aws_cloud_manager.sh local
 ./aws_cloud_manager.sh testing
@@ -302,20 +170,28 @@ Test each environment configuration to ensure proper behavior:
 **Local Environment Output:**
 
 ```
-=== Running script for Local Environment ===
-Configured for local development with lightweight resources
-Environment variables configured for local deployment
-Database URL: localhost
-AWS Region: us-east-1
-Instance Type: t2.micro
-Script execution completed successfully
+Selected environment: local
+Running in local mode. No AWS resources will be provisioned.
+```
+
+**Testing Environment Output:**
+```
+Selected environment: testing
+Provisioning testing environment...
+Successfully provisioned EC2 instance with ID: i-0123456789abcdef0
+```
+
+**Production Environment Output:**
+```
+Selected environment: production
+Provisioning production environment...
+Successfully provisioned EC2 instance with ID: i-0abcdef0123456789
 ```
 
 **Error Condition Output:**
 
 ```
-Usage: ./aws_cloud_manager.sh <environment>
-Available environments: local, testing, production
+Usage: ./aws_cloud_manager.sh <local|testing|production>
 ```
 
 ## Troubleshooting Guide
@@ -331,20 +207,7 @@ bash: ./aws_cloud_manager.sh: Permission denied
 **Solution:** The script lacks execute permissions. Apply the correct permissions:
 
 ```bash
-sudo chmod +x aws_cloud_manager.sh
-```
-
-**Issue: Script Falls Into Else Block Unexpectedly**
-
-```
-No environment specified or recognized.
-```
-
-**Root Cause:** You're using the environment variable version without setting the variable, or providing an invalid argument.
-**Solution:** Ensure you're using the positional parameter version and providing a valid environment argument:
-
-```bash
-./aws_cloud_manager.sh local
+chmod +x aws_cloud_manager.sh
 ```
 
 **Issue: "Command Not Found" Error**
@@ -356,39 +219,8 @@ No environment specified or recognized.
 **Root Cause Analysis:** Either the script doesn't exist in the current directory, or the shebang line is incorrect.
 **Solution Steps:** Verify the script exists with `ls -la aws_cloud_manager.sh` and ensure the first line is exactly `#!/bin/bash`.
 
-**Issue: Script Accepts Multiple Arguments When It Shouldn't**
-**Root Cause:** Missing or incorrect argument count validation.
-**Solution:** Ensure your script includes the argument count check:
-
-```bash
-if [ "$#" -ne 1 ]; then
-    echo "Usage: $0 <environment>"
-    exit 1
-fi
-```
-
-### Advanced Troubleshooting Techniques
-
-**Enable Debug Mode:** Add debugging information to trace script execution:
-
-```bash
-#!/bin/bash
-set -x  # Enable debug mode
-# Your script content
-set +x  # Disable debug mode
-```
-
-**Validate Environment Variable Setting:** If using the export method, verify the variable is set:
-
-```bash
-echo $ENVIRONMENT
-```
-
-**Check Script Syntax:** Validate your bash syntax before execution:
-
-```bash
-bash -n aws_cloud_manager.sh
-```
+**Issue: AWS CLI errors**
+If you encounter errors from the `aws` command, ensure that the AWS CLI is installed and configured correctly with credentials that have permission to launch EC2 instances.
 
 ## The script is [here](aws_cloud_manager.sh)
 
@@ -418,15 +250,15 @@ This foundational knowledge extends naturally to advanced AWS automation scenari
 
 ## Future Enhancements
 
-Consider extending this project with these advanced features:
+This project can be extended with these advanced features:
 
-**AWS CLI Integration:** Add actual resource provisioning commands that create EC2 instances, security groups, or databases based on environment-specific parameters.
-
-**Configuration File Support:** Extend the script to read environment-specific settings from external configuration files, separating configuration from code completely.
+**Configuration File Support:** Extend the script to read environment-specific settings from external configuration files, a best practice that separates configuration from your code.
 
 **Logging and Monitoring:** Implement comprehensive logging that tracks script execution across different environments for audit and troubleshooting purposes.
 
 **Error Recovery:** Add sophisticated error handling that can recover from common AWS API failures and retry operations intelligently.
+
+**Resource Decommissioning:** Add functionality to terminate the resources created by the script.
 
 ## Conclusion
 
@@ -438,18 +270,3 @@ The skills you've developed—dynamic configuration management, input validation
 
 ![ Environment Terminal Output](img/image.png)
 _Terminal output showing the script executing for all environment_
-
-![Local Environment Terminal Output](images/local-environment-output.png)
-_Terminal output showing the script executing in local environment mode_
-
-![Testing Environment Configuration](images/testing-environment-config.png)  
-_Environment variables configured for testing environment deployment_
-
-![Production Environment Execution](images/production-environment-exec.png)
-_Production environment execution with appropriate security configurations_
-
-![Error Handling Demonstration](images/error-handling-demo.png)
-_Script demonstrating proper error handling for invalid inputs_
-
-![Architecture Diagram](images/infrastructure-environments-diagram.png)
-_Visual representation of the three infrastructure environments and their relationships_
