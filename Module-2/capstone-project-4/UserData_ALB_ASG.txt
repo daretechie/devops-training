@@ -1,0 +1,158 @@
+#!/bin/bash
+# -------------------------------------------------------------------
+# WordPress Installation Script for DigitalBoost Project
+# AWS: EC2 + RDS MySQL + EFS + Apache + PHP 8.x
+# -------------------------------------------------------------------
+
+# --- Variables (EDIT THESE) ---
+DB_NAME="wordpress"
+DB_USER="admin"
+DB_PASSWORD="3aFZd1k4#!*ZISE5"     # <-- Replace with RDS password
+DB_HOST="database-1.cgdgaymio2yi.us-east-1.rds.amazonaws.com"        # <-- Replace with RDS endpoint
+EFS_DNS="fs-0a468f2fa2470a92d.efs.us-east-1.amazonaws.com"  # <-- Replace with your EFS DNS name
+
+# --- Update system ---
+yum update -y
+
+# --- Install Apache and utilities ---
+yum install -y httpd httpd-tools mod_ssl amazon-efs-utils wget curl unzip
+
+# Enable and start Apache
+systemctl enable httpd
+systemctl start httpd
+
+# --- Install PHP 8.0 and extensions ---
+amazon-linux-extras enable php8.0
+yum clean metadata
+yum install -y php php-common php-cli php-mysqlnd php-xml php-gd php-curl php-mbstring php-zip php-intl
+
+# --- Install MySQL client (for testing RDS connectivity) ---
+rpm -Uvh https://dev.mysql.com/get/mysql80-community-release-el7-5.noarch.rpm
+yum install -y mysql
+
+
+# --- Setup WordPress directory ---
+mkdir -p /var/www/html
+
+# --- Mount EFS filesystem ---
+echo "${EFS_DNS}:/ /var/www/html nfs4 defaults,_netdev 0 0" | tee -a /etc/fstab
+mount -a
+sleep 10  # wait for mount
+
+# --- Download and install WordPress if not already present ---
+if [ ! -f /var/www/html/wp-config-sample.php ]; then
+    cd /tmp
+    wget https://wordpress.org/latest.tar.gz
+    tar -xzf latest.tar.gz
+    cp -r wordpress/* /var/www/html/
+    rm -rf wordpress latest.tar.gz
+fi
+
+# --- Set permissions ---
+chown -R apache:apache /var/www/html
+find /var/www/html/ -type d -exec chmod 755 {} \;
+find /var/www/html/ -type f -exec chmod 644 {} \;
+
+# --- Configure wp-config.php ---
+cat > /var/www/html/wp-config.php <<EOL
+<?php
+// WordPress Configuration File - DigitalBoost Project
+
+// Database settings
+define('DB_NAME', '${DB_NAME}');
+define('DB_USER', '${DB_USER}');
+define('DB_PASSWORD', '${DB_PASSWORD}');
+define('DB_HOST', '${DB_HOST}');
+define('DB_CHARSET', 'utf8');
+define('DB_COLLATE', '');
+
+// Security keys and salts (auto-generated)
+EOL
+
+# Fetch salts from WordPress API
+curl -s https://api.wordpress.org/secret-key/1.1/salt/ >> /var/www/html/wp-config.php
+
+cat >> /var/www/html/wp-config.php <<'EOL'
+
+// Table prefix
+$table_prefix = 'wp_';
+
+// Debug mode
+define('WP_DEBUG', false);
+
+// Force WordPress to use Load Balancer domain
+define('WP_HOME', 'http://' . $_SERVER['HTTP_HOST']);
+define('WP_SITEURL', 'http://' . $_SERVER['HTTP_HOST']);
+
+define('FORCE_SSL_ADMIN', true);
+// SSL termination at ALB
+if (isset($_SERVER['HTTP_X_FORWARDED_PROTO']) && $_SERVER['HTTP_X_FORWARDED_PROTO'] === 'https') {
+    $_SERVER['HTTPS'] = 'on';
+}
+
+// File system method
+define('FS_METHOD', 'direct');
+
+// Absolute path
+if (!defined('ABSPATH')) {
+    define('ABSPATH', dirname(__FILE__) . '/');
+}
+
+require_once(ABSPATH . 'wp-settings.php');
+EOL
+
+# Set permissions for wp-config
+chown apache:apache /var/www/html/wp-config.php
+chmod 640 /var/www/html/wp-config.php
+
+# --- Health check endpoint for ALB ---
+cat > /var/www/html/health.php <<'EOL'
+<?php
+http_response_code(200);
+echo "Server: " . gethostname() . " - Status: OK - Time: " . date('Y-m-d H:i:s');
+?>
+EOL
+
+# --- .htaccess for permalinks ---
+cat > /var/www/html/.htaccess <<'EOL'
+# BEGIN WordPress
+<IfModule mod_rewrite.c>
+RewriteEngine On
+RewriteBase /
+RewriteRule ^index\.php$ - [L]
+RewriteCond %{REQUEST_FILENAME} !-f
+RewriteCond %{REQUEST_FILENAME} !-d
+RewriteRule . /index.php [L]
+</IfModule>
+# END WordPress
+EOL
+chown apache:apache /var/www/html/.htaccess
+chmod 644 /var/www/html/.htaccess
+
+# --- Apache configuration ---
+cat > /etc/httpd/conf.d/wordpress.conf <<'EOL'
+<VirtualHost *:80>
+    DocumentRoot /var/www/html
+    <Directory "/var/www/html">
+        Options Indexes FollowSymLinks
+        AllowOverride All
+        Require all granted
+    </Directory>
+</VirtualHost>
+
+<IfModule mod_php.c>
+    php_value upload_max_filesize 64M
+    php_value post_max_size 64M
+    php_value memory_limit 256M
+    php_value max_execution_time 300
+    php_value max_input_vars 2000
+</IfModule>
+EOL
+
+# --- Restart Apache ---
+systemctl restart httpd
+
+# --- Log installation ---
+echo "WordPress installation completed at $(date)" > /var/log/wordpress-install.log
+echo "EFS mounted at: /var/www/html" >> /var/log/wordpress-install.log
+echo "WordPress files installed: $(ls -la /var/www/html | wc -l) items" >> /var/log/wordpress-install.log
