@@ -6,11 +6,15 @@ Containers solve the infamous "it works on my machine" problem that has plagued 
 
 Containers are lightweight, portable packages that encapsulate everything an application needs to run: code, runtime libraries, dependencies, and configuration files. Think of them as standardized shipping containers for software - they ensure applications run consistently across any environment.
 
+![Container Concept Diagram](placeholder-container-concept.png)
+
 ## 🚀 Introduction to Docker
 
 Docker, created by Solomon Hykes in 2013, is the leading containerization platform that revolutionized application deployment and management. It provides tools to build, ship, and run containers efficiently.
 
 Docker containers act as isolated environments that share the host operating system's kernel, making them incredibly lightweight compared to traditional virtual machines.
+
+![Docker Logo and Architecture](placeholder-docker-architecture.png)
 
 ## ✨ Container Advantages
 
@@ -31,6 +35,8 @@ Containers can be started, stopped, and scaled in seconds rather than minutes. T
 - Quick response to traffic spikes
 - Efficient resource utilization
 - Simplified rollbacks and updates
+
+![Docker vs VM Comparison](placeholder-docker-vs-vm.png)
 
 ## 🔍 Docker vs Virtual Machines
 
@@ -67,6 +73,8 @@ Before starting with Docker:
 sudo apt-get update
 ```
 *Updates package lists to ensure latest software information*
+
+![Terminal Update Command](placeholder-apt-update.png)
 
 #### Step 2: Install Required Dependencies
 
@@ -119,12 +127,16 @@ sudo apt-get install docker-ce docker-ce-cli containerd.io docker-buildx-plugin 
 ```
 *Installs Docker Engine and essential components*
 
+![Docker Installation Progress](placeholder-docker-install.png)
+
 #### Step 9: Verify Installation
 
 ```bash
 sudo systemctl status docker
 ```
 *Checks if Docker service is running properly*
+
+![Docker Service Status](placeholder-docker-status.png)
 
 #### Step 10: Enable Non-Root Access
 
@@ -143,6 +155,8 @@ sudo usermod -aG docker ubuntu
 docker run hello-world
 ```
 
+![Hello World Container Output](placeholder-hello-world.png)
+
 This command demonstrates Docker's complete workflow:
 
 1.  **Image Check**: Docker searches for `hello-world` image locally
@@ -157,6 +171,8 @@ This command demonstrates Docker's complete workflow:
 docker images
 ```
 *Lists all images stored locally on the system*
+
+![Docker Images List](placeholder-docker-images.png)
 
 ## 🧑‍💻 Essential Docker Commands
 
@@ -178,6 +194,8 @@ docker run --name my-nginx nginx
 docker run -p 8080:80 nginx
 ```
 
+![Docker Run Examples](placeholder-docker-run.png)
+
 #### Listing Containers
 
 ```bash
@@ -187,6 +205,8 @@ docker ps
 # Show all containers (running and stopped)
 docker ps -a
 ```
+
+![Docker PS Output](placeholder-docker-ps.png)
 
 #### Stopping Containers
 
@@ -244,6 +264,8 @@ docker rmi IMAGE_ID1 IMAGE_ID2
 # Remove unused images
 docker image prune
 ```
+
+![Docker Image Management](placeholder-docker-rmi.png)
 
 ## 🔄 Docker Pull vs Run
 
