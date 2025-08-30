@@ -1,189 +1,163 @@
-# 🐳 Working with the Docker Container Lifecycle
+# 🐳 Working with Docker Containers
 
-This guide covers the fundamentals of working with Docker containers, from launching and running them to managing their complete lifecycle. Mastering these operations is a key skill in modern DevOps workflows.
+Docker containers are lightweight, portable, and executable units that encapsulate an application and its dependencies. This guide covers the fundamentals of working with Docker containers, from launching and running them to managing their complete lifecycle.
 
----
+**Key Concepts:**
 
-## 🎯 Core Concepts
-
-- **Image**: A read-only template used to create containers.
-- **Container**: A runnable instance of a Docker image. It is a lightweight, portable, and executable unit that packages an application and its dependencies.
-- **Lifecycle**: The stages a container goes through: created, running, stopped, and removed.
+*   **Image**: A read-only template used to create containers.
+*   **Container**: A running instance of a Docker image.
+*   **Lifecycle**: The stages a container goes through (created, running, stopped, removed).
 
 ---
 
-## ▶️ Running and Managing Containers
+## ▶️ Running Containers
 
 ### Basic Container Launch
 
-To run a container from an image, use the `docker run` command. If the image is not available locally, Docker will pull it from the registry.
+To run a container, use the `docker run` command followed by the image name. This creates and starts the container.
 
 ```bash
-# This container will run, print its kernel info, and then exit.
-docker run ubuntu uname -a
+docker run ubuntu
 ```
 
-### Interactive Mode
+**Note**: A simple `docker run ubuntu` command will cause the container to exit immediately because no long-running process is active. To keep it running, you need to specify a command (see Interactive Mode).
 
-For an interactive shell session inside a container, use the `-i` (interactive) and `-t` (pseudo-TTY) flags.
+### Starting an Existing Container
+
+If a container is stopped, you can restart it using its name or ID:
 
 ```bash
-docker run -it ubuntu /bin/bash
-```
-This opens a bash shell inside the Ubuntu container, allowing you to run commands directly within it.
-
-### Detached Mode
-
-To run a container in the background, use the `-d` (detached) flag. This is useful for long-running services like web servers.
-
-```bash
-# The 'sleep infinity' command keeps the container running in the background.
-docker run -d ubuntu sleep infinity
+docker start my-ubuntu-container
 ```
 
-### Naming a Container
+---
 
-It is a best practice to assign names to your containers for easier management.
+## ⚙️ Launching Containers with Options
 
-```bash
-docker run -d --name my-ubuntu-container ubuntu sleep infinity
-```
+You can customize container launch with various flags:
+
+*   **Naming a Container (`--name`)**: Assign a memorable name.
+    ```bash
+    docker run --name my-ubuntu-container ubuntu
+    ```
+
+*   **Detached Mode (`-d`)**: Run the container in the background.
+    ```bash
+    docker run -d --name my-bg-process ubuntu sleep infinity
+    ```
+
+*   **Interactive Mode (`-it`)**: Open an interactive shell inside the container.
+    ```bash
+    docker run -it --name my-interactive-shell ubuntu /bin/bash
+    ```
+
+*   **Environment Variables (`-e`)**: Set environment variables.
+    ```bash
+    docker run -e "MY_VARIABLE=my-value" ubuntu
+    ```
+
+*   **Port Mapping (`-p`)**: Map a host port to a container port.
+    ```bash
+    docker run -d -p 8080:80 --name my-web-server nginx
+    ```
+
+*   **Volume Mounting (`-v`)**: Mount a local directory into the container.
+    ```bash
+    docker run -v /host/path:/container/path ubuntu
+    ```
 
 ---
 
 ## 🔄 Container Lifecycle Management
 
-Use the following commands to manage the state of your containers.
-
-### Listing Containers
-
-- **View only running containers:**
-  ```bash
-  docker ps
-  ```
-- **View all containers (running and stopped):**
-  ```bash
-  docker ps -a
-  ```
-
-### Starting, Stopping, and Restarting
-
-- **Start a stopped container:**
-  ```bash
-  docker start <container_name_or_id>
-  ```
-- **Stop a running container gracefully:**
-  ```bash
-  docker stop <container_name_or_id>
-  ```
-- **Restart a container:**
-  ```bash
-  docker restart <container_name_or_id>
-  ```
-
-### Executing Commands in a Running Container
-
-You can run commands inside a running container without attaching a full terminal session using `docker exec`.
-
-```bash
-# Execute 'echo' command inside 'my-ubuntu-container'
-docker exec my-ubuntu-container echo "Hello from inside the container"
-```
-
-### Removing Containers
-
-- **Remove a stopped container:**
-  ```bash
-  docker rm <container_name_or_id>
-  ```
-- **Force-remove a running container:**
-  ```bash
-  docker rm -f <container_name_or_id>
-  ```
-- **Remove all stopped containers (pruning):**
-  ```bash
-  docker container prune -f
-  ```
+| Operation         | Command                         | Description                               |
+| ----------------- | ------------------------------- | ----------------------------------------- |
+| List Running      | `docker ps`                     | Show running containers                   |
+| List All          | `docker ps -a`                  | Show all containers (running and stopped) |
+| Start             | `docker start <container>`      | Start a stopped container                 |
+| Stop              | `docker stop <container>`       | Stop a running container gracefully       |
+| Restart           | `docker restart <container>`    | Restart a container                       |
+| View Logs         | `docker logs <container>`       | Show container logs                       |
+| Inspect           | `docker inspect <container>`    | Display low-level information             |
+| Execute Command   | `docker exec -it <container> cmd` | Run a command in a running container      |
 
 ---
 
-## ✍️ Practical Exercise: Docker Container Operations
+## ❌ Removing Containers
 
-This exercise will walk you through the complete lifecycle of a container.
+Remove a stopped container by its name or ID:
 
-### Task 1: Create and Run an Interactive Container
+```bash
+docker rm my-container
+```
 
-1.  Pull the latest `ubuntu` image to ensure you have it locally.
-    ```bash
-    docker pull ubuntu
-    ```
-2.  Start an interactive container and name it `practice-ubuntu`.
+To force-remove a running container, use the `-f` flag:
+
+```bash
+docker rm -f my-container
+```
+
+To remove all stopped containers at once:
+
+```bash
+docker container prune
+```
+
+---
+
+## 🧑‍💻 Practical Exercise: Docker Container Operations
+
+1.  **Start an Interactive Container**
+    Run an Ubuntu container, give it a name, and open a `bash` shell.
     ```bash
     docker run -it --name practice-ubuntu ubuntu /bin/bash
     ```
-3.  Inside the container's shell, run a command to see the OS release information, then exit.
+
+2.  **Run Commands Inside the Container**
+    Check the operating system release.
     ```bash
     cat /etc/os-release
     exit
     ```
 
-### Task 2: Verify Status and Restart the Container
-
-1.  After exiting, the container is stopped. Verify its status is "Exited".
+3.  **Check Container Status**
+    Verify that the container has exited.
     ```bash
     docker ps -a
     ```
-2.  Restart the container. It will run in the background because its original command was `/bin/bash`.
-    ```bash
-    docker restart practice-ubuntu
-    ```
-3.  Verify that it is now running.
-    ```bash
-    docker ps
-    ```
 
-### Task 3: Execute a Command and View Logs
-
-1.  Execute a command inside the running `practice-ubuntu` container.
+4.  **Restart and Re-attach**
+    Start the container again and attach to it with `exec`.
     ```bash
-    docker exec practice-ubuntu ls -la /
-    ```
-2.  View the logs for the container (in this case, there won't be many).
-    ```bash
-    docker logs practice-ubuntu
+    docker start practice-ubuntu
+    docker exec -it practice-ubuntu /bin/bash
     ```
 
-### Task 4: Stop and Remove the Container
-
-1.  Stop the container.
+5.  **Clean Up**
+    Stop and remove the container.
     ```bash
     docker stop practice-ubuntu
-    ```
-2.  Remove the container.
-    ```bash
     docker rm practice-ubuntu
     ```
-3.  Verify it has been removed by listing all containers. It should no longer appear.
-    ```bash
-    docker ps -a
-    ```
 
 ---
 
-## 🐞 Common Troubleshooting
+## 🐞 Troubleshooting
 
-| Issue | Cause | Solution |
-| :--- | :--- | :--- |
-| **Container exits immediately** | The container's main process finished. | Run it with a long-running command (`sleep infinity`) or in interactive mode (`-it`). |
-| **`port already in use`** | Another process is using the host port. | Stop the other process or use a different host port (`-p 8081:80`). |
-| **`container name already in use`** | A container with that name already exists. | Remove the old container (`docker rm <name>`) or choose a new name. |
-| **`Permission denied`** | The current user is not in the `docker` group. | Add your user to the `docker` group: `sudo usermod -aG docker $USER` (requires logout/login). |
+| Issue                                     | Cause                             | Solution                                                    |
+| ----------------------------------------- | --------------------------------- | ----------------------------------------------------------- |
+| Container exits immediately               | No foreground process is running  | Use `-it` for a shell or `-d` with a long-running command.  |
+| `port already in use`                     | Another process is using the port | Stop the other process or use a different host port.        |
+| `conflict: container name already in use` | A container with that name exists | Use a different name or remove the old container first.     |
+| `permission denied`                       | Docker daemon requires `sudo`     | Add your user to the `docker` group or run commands with `sudo`. |
 
 ---
 
-## ✨ Best Practices
+## ✅ Best Practices
 
-- **Naming:** Always name your containers (`--name`) for easy reference.
-- **Cleanup:** Regularly clean up unused containers (`docker container prune`) and images (`docker image prune`) to save disk space.
-- **Resource Monitoring:** Use `docker stats` to monitor the resource (CPU, Memory) usage of your running containers.
-- **Logging:** Check container logs with `docker logs <container_name>` for debugging.
+*   **Name Your Containers**: Use the `--name` flag to assign meaningful names for easier management.
+*   **Clean Up Regularly**: Use `docker container prune` to remove stopped containers and `docker image prune` for unused images to save disk space.
+*   **Use Specific Image Versions**: Instead of `ubuntu`, use a specific tag like `ubuntu:22.04` for reproducible builds.
+*   **Monitor Resources**: Use `docker stats` to monitor the CPU, memory, and network usage of your running containers.
+
+Mastering these fundamentals is the first step toward effective container management and orchestration with tools like Docker Compose and Kubernetes.
