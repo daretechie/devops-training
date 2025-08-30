@@ -127,19 +127,57 @@ When running containers on EC2, configure security groups to allow traffic:
 
 ![Security Group Configuration](image-placeholder-security-group.png)
 
-## Accessing Applications
+## Accessing and Testing Applications
 
-Open browser and navigate to:
+### Browser Verification Process
 
-```
-http://your-public-ip:8080
-```
+1. **Access Application via Browser**
 
-![Web Application Access](image-placeholder-web-browser.png)
+   ```
+   http://your-public-ip:8080
+   ```
+
+   ![Web Application Access](image-placeholder-web-browser.png)
+
+2. **Comprehensive Testing Checklist**
+
+   ```bash
+   # Verify container is running
+   docker ps
+
+   # Check port mapping
+   docker port container-name
+
+   # Test local connectivity
+   curl http://localhost:8080
+
+   # Test from EC2 instance
+   curl http://$(curl -s http://169.254.169.254/latest/meta-data/public-ipv4):8080
+   ```
+
+3. **Troubleshoot Browser Access Issues**
+   - Confirm security group allows inbound traffic on port 8080
+   - Verify container is running: `docker ps`
+   - Check application logs: `docker logs container-name`
+   - Test internal connectivity: `docker exec container-name curl localhost:80`
+
+### Expected Results
+
+- **Successful Access**: Browser displays web content
+- **Container Status**: Shows as "Up" in `docker ps`
+- **Port Mapping**: Displays `0.0.0.0:8080->80/tcp`
+- **Response Code**: `curl` returns HTTP 200 status
 
 ## Pushing Images to Docker Hub
 
-Share custom images by pushing to Docker Hub registry.
+**Primary Goal:** Share custom images via Docker Hub registry for reusability, collaboration, and distribution across different environments.
+
+### Why Push to Docker Hub?
+
+- **Collaboration**: Team members can access the same image versions
+- **Deployment**: Pull images directly to production servers
+- **Version Control**: Maintain different image versions with tags
+- **Portability**: Run containers on any Docker-enabled system
 
 ### Prerequisites
 
@@ -148,10 +186,12 @@ Share custom images by pushing to Docker Hub registry.
 
 ![Docker Hub Repository](image-placeholder-dockerhub-repo.png)
 
-### Image Tagging
+### Image Tagging Strategy
 
 ```bash
-docker tag my-nginx-app username/repository-name:tag
+# Tag with version for better tracking
+docker tag my-nginx-app username/my-web-app:v1.0
+docker tag my-nginx-app username/my-web-app:latest
 ```
 
 ![Docker Tag Command](image-placeholder-tag-image.png)
@@ -169,16 +209,32 @@ Enter password when prompted.
 ### Pushing Image
 
 ```bash
-docker push username/repository-name:tag
+# Push specific version
+docker push username/my-web-app:v1.0
+# Push latest tag
+docker push username/my-web-app:latest
 ```
 
 ![Docker Push Process](image-placeholder-push-image.png)
 
-### Verification
+### Verification and Testing
 
-Check Docker Hub repository to confirm image upload.
+1. **Verify Upload**: Check Docker Hub repository to confirm image upload
+   ![Docker Hub Verification](image-placeholder-hub-verification.png)
 
-![Docker Hub Verification](image-placeholder-hub-verification.png)
+2. **Test Pull from Different Environment**:
+
+   ```bash
+   # Remove local image to test pull
+   docker rmi username/my-web-app:v1.0
+   # Pull and run from Docker Hub
+   docker run -p 8080:80 username/my-web-app:v1.0
+   ```
+
+3. **Share with Team**: Provide pull command to colleagues
+   ```bash
+   docker pull username/my-web-app:v1.0
+   ```
 
 ## Practical Exercise: Dockerizing Static Web Page
 
@@ -215,10 +271,65 @@ Check Docker Hub repository to confirm image upload.
    EOF
    ```
 
-5. **Build and Run**
+5. **Build Optimized Image**
+
    ```bash
-   docker build -t web-app .
-   docker run -d -p 8080:80 web-app
+   # Create optimized Dockerfile
+   cat > Dockerfile << EOF
+   # Multi-stage build for production
+   FROM nginx:alpine AS production
+
+   # Copy static files
+   COPY index.html /usr/share/nginx/html/
+
+   # Use non-root user for security
+   RUN addgroup -g 101 -S nginx && adduser -S -D -H -u 101 -h /var/cache/nginx -s /sbin/nologin -G nginx -g nginx nginx
+   USER nginx
+
+   # Expose port
+   EXPOSE 80
+   EOF
+
+   # Build optimized image
+   docker build -t web-app:optimized .
+   ```
+
+6. **Run and Test Container**
+
+   ```bash
+   # Run container with resource limits
+   docker run -d -p 8080:80 --memory=128m --name web-app-container web-app:optimized
+
+   # Comprehensive testing
+   docker ps
+   curl http://localhost:8080
+
+   # Test browser access at http://public-ip:8080
+   # Verify page loads correctly with expected content
+   ```
+
+7. **Push to Docker Hub**
+
+   ```bash
+   # Tag for Docker Hub
+   docker tag web-app:optimized username/web-app:v1.0
+   docker tag web-app:optimized username/web-app:latest
+
+   # Push to registry
+   docker push username/web-app:v1.0
+   docker push username/web-app:latest
+
+   # Verify upload on Docker Hub dashboard
+   ```
+
+8. **Validation Steps**
+
+   ```bash
+   # Test pull from Docker Hub
+   docker rmi web-app:optimized username/web-app:v1.0
+   docker run -p 8081:80 username/web-app:v1.0
+
+   # Confirm browser access at http://public-ip:8081
    ```
 
 ## Troubleshooting Guide
@@ -325,14 +436,91 @@ FROM nginx:alpine
 # Alpine images are smaller
 ```
 
-### Best Practices
+### Performance Optimization Techniques
 
-- Use specific image tags instead of `latest`
-- Implement multi-stage builds for production
-- Keep images small by removing unnecessary packages
-- Use .dockerignore to exclude unwanted files
-- Run containers as non-root users when possible
-- Regularly update base images for security patches
+**1. Use Alpine-Based Images**
+
+```dockerfile
+# Instead of: FROM nginx:latest (133MB)
+FROM nginx:alpine  # Only 23MB
+```
+
+**2. Multi-Stage Builds for Production**
+
+```dockerfile
+# Build stage
+FROM node:alpine AS builder
+WORKDIR /app
+COPY package*.json ./
+RUN npm install
+COPY . .
+RUN npm run build
+
+# Production stage
+FROM nginx:alpine AS production
+COPY --from=builder /app/dist /usr/share/nginx/html
+EXPOSE 80
+```
+
+**3. Optimize Image Layers**
+
+```dockerfile
+# Combine RUN commands to reduce layers
+RUN apt-get update && \
+    apt-get install -y package1 package2 && \
+    apt-get clean && \
+    rm -rf /var/lib/apt/lists/*
+```
+
+**4. Use .dockerignore**
+
+```bash
+# Create .dockerignore to exclude unnecessary files
+cat > .dockerignore << EOF
+node_modules
+*.md
+.git
+.gitignore
+Dockerfile
+EOF
+```
+
+**5. Resource Limits in Production**
+
+```bash
+# Run with memory and CPU limits
+docker run -d \
+  --memory=256m \
+  --cpus=0.5 \
+  -p 8080:80 \
+  web-app:optimized
+```
+
+### Best Practices for Production
+
+- **Security**: Use specific image tags, not `latest`
+- **Size Optimization**: Implement multi-stage builds and alpine base images
+- **Monitoring**: Implement health checks in Dockerfiles
+- **Updates**: Regularly update base images for security patches
+- **Secrets**: Never include sensitive data in images
+- **Logging**: Configure proper log drivers for production
+
+### Performance Monitoring
+
+```bash
+# Monitor resource usage
+docker stats container-name
+
+# Check image sizes
+docker images --format "table {{.Repository}}\t{{.Tag}}\t{{.Size}}"
+
+# Analyze image layers
+docker history image-name
+
+# Health check implementation
+HEALTHCHECK --interval=30s --timeout=3s \
+  CMD curl -f http://localhost/ || exit 1
+```
 
 ### Monitoring and Maintenance
 
