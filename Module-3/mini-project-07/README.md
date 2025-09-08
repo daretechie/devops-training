@@ -627,6 +627,64 @@ When troubleshooting workflow issues, follow this systematic approach:
 
 ## Best Practices and Next Steps
 
+### Add ESLint (Code Quality Checks)
+
+To maintain code quality and catch common errors early, we can integrate a linter like ESLint.
+
+*   **Install ESLint**: First, add ESLint to your project as a development dependency. The `--init` command will start a configuration wizard to help you set up the rules for your project.
+
+    ```bash
+    npm install eslint --save-dev
+    npx eslint --init
+    ```
+
+*   **Add ESLint to Workflow**: To automate code quality checks, add a step to your GitHub Actions workflow that runs ESLint. This will cause the build to fail if any linting errors are found.
+
+    ```yaml
+    - name: Lint code
+      run: npx eslint .
+    ```
+
+    This step will run ESLint on all your project files.
+
+📷 *\[Placeholder: Screenshot of ESLint catching issues]*
+
+### Expand Unit Testing
+
+Unit tests are crucial for verifying that individual parts of your application work as expected. We'll use Jest, a popular JavaScript testing framework, along with `supertest` for testing our Express server endpoints.
+
+*   **Install Jest and Supertest**: Add Jest and Supertest to your project's development dependencies.
+
+    ```bash
+    npm install jest supertest --save-dev
+    ```
+
+*   **Create a Test File**: Create a test file (e.g., `app.test.js`). Here's a simple test that checks if our main endpoint returns the correct message and a 200 status code. Note that you'll need to export your `app` from `index.js` for this to work (`module.exports = app;`).
+
+    ```javascript
+    const request = require('supertest');
+    const app = require('./index'); // Assumes app is exported from index.js
+
+    describe('GET /', () => {
+      it('should return "Hello CI/CD World!" with a 200 status code', async () => {
+        const res = await request(app).get('/');
+        expect(res.statusCode).toBe(200);
+        expect(res.text).toBe('Hello CI/CD World!');
+      });
+    });
+    ```
+
+*   **Update Workflow to Run Tests**: Your `package.json` should have a `test` script that runs Jest. The GitHub Actions workflow will use this script to execute the tests.
+
+    ```yaml
+    - name: Run tests
+      run: npm test
+    ```
+
+    Now, every time you push code, your tests will run automatically.
+
+📷 *\[Placeholder: Screenshot of passing Jest test in Actions]*
+
 ### Security Best Practices
 
 Always store sensitive information like API keys, passwords, and SSH keys in GitHub Secrets rather than hardcoding them in workflow files. Use principle of least privilege when creating access keys - grant only the minimum permissions necessary for the deployment process.
