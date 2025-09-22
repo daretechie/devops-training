@@ -1,59 +1,74 @@
 # GitHub Actions CI/CD Demo
 
-This repository, [daretechie/github-actions-cicd-demo](https://github.com/daretechie/github-actions-cicd-demo), demonstrates a complete Continuous Integration and Continuous Deployment (CI/CD) pipeline using GitHub Actions.
+This repository, [daretechie/github-actions-cicd-demo](https://github.com/daretechie/github-actions-cicd-demo), demonstrates a complete Continuous Integration and Continuous Deployment (CI/CD) pipeline using GitHub Actions, specifically tailored to meet the requirements of the course project.
 
 ## Overview
 
-The CI/CD pipeline is defined in the `.github/workflows/cicd.yml` file and consists of several jobs that are triggered on push and pull requests to the `main` and `develop` branches. The pipeline automates the testing, code quality analysis, security scanning, building, and deployment of a Node.js application.
+The CI/CD pipeline is defined in the `.github/workflows/cicd.yml` file and consists of several jobs that are triggered on push and pull requests to the `main` and `develop` branches. The pipeline automates the testing, code quality analysis, security scanning, building, and deployment of a Node.js application, adhering to the specific requirements of the assignment.
 
-## CI/CD Pipeline Breakdown
+## CI/CD Pipeline Breakdown and Feature Implementation
 
-The pipeline is composed of the following jobs:
+The pipeline is composed of the following jobs, with features implemented as per the project requirements:
 
-### 1. `test`
+### 1. `test` - Multi-Version Testing
 
-- **Purpose:** Runs unit tests and code coverage reports.
-- **Details:** This job uses a build matrix to test the application against multiple versions of Node.js (18.x and 20.x). It also caches npm dependencies to speed up the build process.
+- **Purpose:** Runs unit tests and code coverage reports across multiple Node.js versions.
+- **Implementation Details:**
+  - **Build Matrix:** This job uses a build matrix to test the application against the required Node.js versions: `12.x`, `14.x`, and `16.x`.
+  - **Dependency Caching:** To optimize build times, npm dependencies are cached. The cache key is generated based on the hash of the `package-lock.json` file, ensuring that dependencies are re-downloaded only when the lock file changes. This is implemented as follows:
+    ```yaml
+    - name: Cache Node modules
+      uses: actions/cache@v3
+      with:
+        path: ~/.npm
+        key: ${{ runner.os }}-node-${{ hashFiles('**/package-lock.json') }}
+        restore-keys: |
+          ${{ runner.os }}-node-
+    ```
 
-### 2. `code-quality`
+### 2. `code-quality` - Static Code Analysis
 
-- **Purpose:** Performs static code analysis to ensure code quality.
-- **Details:** This job uses ESLint to lint the codebase and uploads the results to GitHub Code Scanning as a SARIF file.
+- **Purpose:** Performs static code analysis to ensure code quality and adherence to coding standards.
+- **Implementation Details:**
+  - **ESLint Integration:** This job uses ESLint to lint the codebase.
+  - **Fail on Error:** The workflow is configured to fail if ESLint finds any errors, ensuring that only code that meets the quality standards can proceed in the pipeline. This is achieved by removing the `continue-on-error: true` flag from the ESLint step.
 
-### 3. `security`
+### 3. `security` - Vulnerability Scanning
 
-- **Purpose:** Scans the project for vulnerabilities.
+- **Purpose:** Scans the project for known vulnerabilities.
 - **Details:** This job uses Trivy to scan the filesystem for vulnerabilities and uploads the results to GitHub Code Scanning as a SARIF file.
 
-### 4. `build`
+### 4. `build` - Docker Image Creation
 
 - **Purpose:** Builds and packages the application into a Docker image.
 - **Details:** This job builds a Docker image, tags it with the branch name and commit SHA, and pushes it to the GitHub Container Registry (ghcr.io).
 
-### 5. `deploy-staging`
+### 5. Deployment (Staging and Production)
 
-- **Purpose:** Deploys the application to a staging environment.
-- **Details:** This is a simulated deployment to a staging environment for further testing.
+- **Purpose:** Deploys the application to staging and production environments.
+- **Details:** The pipeline includes simulated deployments to both staging and production environments, with integration and smoke tests to verify the deployments.
 
-### 6. `integration-tests`
+## Evidence of Successful Workflow
 
-- **Purpose:** Runs integration tests against the staging environment.
-- **Details:** This job simulates running integration tests against the deployed application in the staging environment.
+To verify that the pipeline is running successfully, navigate to the "Actions" tab in your GitHub repository. You should see a list of workflow runs. A successful run will have a green checkmark next to it.
 
-### 7. `deploy-production`
+You can click on a workflow run to see the details of each job.
 
-- **Purpose:** Deploys the application to a production environment.
-- **Details:** This is a simulated deployment to a production environment.
+**Screenshot of a successful workflow run with the correct Node.js versions:**
 
-### 8. `smoke-tests`
+![Successful Workflow Run](placeholder-for-successful-run-image.png)
 
-- **Purpose:** Runs smoke tests against the production environment.
-- **Details:** This job simulates running smoke tests to verify the production deployment.
+**Screenshot of a failed `code-quality` job due to linting errors:**
 
-### 9. `notify`
+![Failed Linting Job](placeholder-for-failed-linting-job.png)
 
-- **Purpose:** Sends a notification about the deployment status.
-- **Details:** This job sends a success or failure notification based on the outcome of the previous jobs.
+**Screenshot of the `build` job details, showing the pushed Docker image:**
+
+![Build Job Details](placeholder-for-build-job-image.png)
+
+**Screenshot of the security scan results:**
+
+![Security Scan Results](placeholder-for-security-scan-image.png)
 
 ## Troubleshooting
 
@@ -94,21 +109,3 @@ permissions:
   contents: read
   packages: write
 ```
-
-## Evidence of Successful Workflow
-
-To verify that the pipeline is running successfully, navigate to the "Actions" tab in your GitHub repository. You should see a list of workflow runs. A successful run will have a green checkmark next to it.
-
-You can click on a workflow run to see the details of each job.
-
-**Screenshot of a successful workflow run:**
-
-![Successful Workflow Run](placeholder-for-successful-run-image.png)
-
-**Screenshot of the `build` job details:**
-
-![Build Job Details](placeholder-for-build-job-image.png)
-
-**Screenshot of the security scan results:**
-
-![Security Scan Results](placeholder-for-security-scan-image.png)
