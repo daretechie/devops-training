@@ -1,12 +1,25 @@
 # GitHub Actions CI/CD Demo
 
+[![CI/CD Pipeline](https://github.com/daretechie/github-actions-cicd-demo/actions/workflows/cicd.yml/badge.svg)](https://github.com/daretechie/github-actions-cicd-demo/actions/workflows/cicd.yml)
+
 This repository, [daretechie/github-actions-cicd-demo](https://github.com/daretechie/github-actions-cicd-demo), demonstrates a complete Continuous Integration and Continuous Deployment (CI/CD) pipeline using GitHub Actions, specifically tailored to meet the requirements of the course project.
 
 ## Overview
 
 The CI/CD pipeline is defined in the `.github/workflows/cicd.yml` file and consists of several jobs that are triggered on push and pull requests to the `main` and `develop` branches. The pipeline automates the testing, code quality analysis, security scanning, building, and deployment of a Node.js application, adhering to the specific requirements of the assignment.
 
-## CI/CD Pipeline Breakdown and Feature Implementation
+## Table of Contents
+
+- CI/CD Pipeline Breakdown
+  - 1. `test` - Multi-Version Testing
+  - 2. `code-quality` - Static Code Analysis
+  - 3. `security` - Vulnerability Scanning
+  - 4. `build` - Docker Image Creation
+  - 5. `deploy` - Staging and Production Deployment
+- Verifying the Workflow
+- Troubleshooting
+
+## CI/CD Pipeline Breakdown
 
 The pipeline is composed of the following jobs, with features implemented as per the project requirements:
 
@@ -43,32 +56,32 @@ The pipeline is composed of the following jobs, with features implemented as per
 - **Purpose:** Builds and packages the application into a Docker image.
 - **Details:** This job builds a Docker image, tags it with the branch name and commit SHA, and pushes it to the GitHub Container Registry (ghcr.io).
 
-### 5. Deployment (Staging and Production)
+### 5. `deploy` - Staging and Production Deployment
 
 - **Purpose:** Deploys the application to staging and production environments.
 - **Details:** The pipeline includes simulated deployments to both staging and production environments, with integration and smoke tests to verify the deployments.
 
-## Evidence of Successful Workflow
+## Verifying the Workflow
 
 To verify that the pipeline is running successfully, navigate to the "Actions" tab in your GitHub repository. You should see a list of workflow runs. A successful run will have a green checkmark next to it.
 
 You can click on a workflow run to see the details of each job.
 
-**Screenshot of a successful workflow run with the correct Node.js versions:**
+**Successful workflow run with the correct Node.js versions:**
 
-![Successful Workflow Run](placeholder-for-successful-run-image.png)
+![Successful Workflow Run](img/successful-run-image.png)
 
 **Screenshot of a failed `code-quality` job due to linting errors:**
 
-![Failed Linting Job](placeholder-for-failed-linting-job.png)
+![Failed Linting Job](img/failed-linting-job.png)
 
 **Screenshot of the `build` job details, showing the pushed Docker image:**
 
-![Build Job Details](placeholder-for-build-job-image.png)
+![Build Job Details](img/build-job-image.png)
 
 **Screenshot of the security scan results:**
 
-![Security Scan Results](placeholder-for-security-scan-image.png)
+![Security Scan Results](img/security-scan-results.png)
 
 ## Troubleshooting
 
