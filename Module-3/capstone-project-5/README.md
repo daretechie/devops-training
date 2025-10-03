@@ -90,7 +90,14 @@ _(Please replace the bracketed text with your actual screenshots.)_
 ![Order Placement](screenshots/order-placement.png)
 **Description:** Once logged in, users can place orders. This demonstrates a protected API endpoint.
 
-## 4. DevOps and CI/CD Evidence
+## Git Workflow
+
+- **Feature Branches**: Create branches for new features (e.g., `feature/add-user-auth`)
+- **Pull Requests**: Require PR reviews before merging to `main`
+- **Main Branch Protection**: Protected branch with required status checks
+
+![Git Branching](screenshots/git-branching.png)
+**Description:** This shows the GitHub branch protection settings and PR workflow for collaborative development.
 
 ### 4.1. Dockerization
 
@@ -108,11 +115,12 @@ The `.github/workflows/ci.yml` file defines the Continuous Integration pipeline,
 
 This project implements **Continuous Delivery**. The `docker-publish.yml` workflow automatically builds and pushes Docker images for the `api` and `webapp` to GitHub Container Registry (GHCR) on every push to the `main` branch.
 
-This ensures that a production-ready artifact is always available.
+The `deploy.yml` workflow then automatically deploys the application to an AWS EC2 instance by pulling the latest images and running them via Docker Compose.
 
 ![Docker Publish Workflow](screenshots/docker-publish.png)
+![Deploy Workflow](screenshots/deploy-workflow.png)
 
-**Description:** This demonstrates that the application is automatically packaged and published, ready for deployment. The final step of deploying to a cloud host (like AWS, Azure, or GCP) can be added to this workflow by including steps to pull the latest image from GHCR and run it on the cloud provider's infrastructure.
+**Description:** This demonstrates that the application is automatically packaged, published, and deployed to a cloud platform, completing the full CI/CD pipeline from code to production.
 
 ### 4.4. Performance Optimization (Caching)
 
@@ -148,6 +156,28 @@ npm test
 
 If you encounter any issues, here are some common solutions:
 
-- **Port Conflict:** If you get an error that port 3000 or 3001 is already in use, please stop the application that is using it. You can find the process using `sudo lsof -i :3000`.
-- **`JWT_SECRET` not set:** If the API fails to start, ensure you have exported the `JWT_SECRET` environment variable in your terminal session before running `docker-compose up`.
-- **Docker Issues:** Run `docker-compose logs -f` to see real-time logs from the containers. If something is failing, the logs will provide clues.
+### Build and Runtime Issues
+
+- **Port Conflict:** If you get an error that port 3000 or 3001 is already in use, stop the application using it. Find the process with `sudo lsof -i :3000` and kill it with `sudo kill -9 <PID>`.
+- **`JWT_SECRET` not set:** Ensure you have exported the `JWT_SECRET` environment variable before running `docker-compose up`. Check with `echo $JWT_SECRET`.
+- **Docker Issues:** Run `docker-compose logs -f` for real-time logs. If containers fail to start, check for permission issues or missing dependencies.
+
+### Deployment Issues
+
+- **EC2 Connection Failed:** Verify your EC2 instance is running and security groups allow SSH (port 22) from your IP. Check the instance status in the AWS console.
+- **Image Pull Errors:** Ensure the Docker images are successfully pushed to GHCR. Check the Actions tab for any failures in the `docker-publish.yml` workflow.
+- **Application Not Accessible:** After deployment, check if the EC2 firewall allows ports 80 and 443. Use `sudo ufw status` and allow if necessary.
+
+### Performance and Network Issues
+
+- **Slow Builds:** The caching in CI/CD should help, but if local builds are slow, ensure you're using Node 20.x and have sufficient RAM.
+- **Network Timeouts:** For external API calls (like Unsplash images), check your internet connection. In production, consider using a CDN for static assets.
+- **Memory Issues:** Monitor with `docker stats`. If containers use too much memory, optimize your Docker images or upgrade your EC2 instance type.
+
+### CI/CD Failures
+
+- **Workflow Permissions:** Ensure the GitHub token has package read/write permissions for GHCR.
+- **Secret Mismatches:** Double-check that secrets in GitHub match your local environment variables.
+- **Node Version:** The workflows use Node 20; if you encounter issues, verify your local Node version matches.
+
+For additional help, check the GitHub Actions logs in the repository's Actions tab or open an issue.
