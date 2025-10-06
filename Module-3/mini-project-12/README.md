@@ -61,7 +61,8 @@ Open a PowerShell terminal as **Administrator** and run the following command:
 choco install minikube
 ```
 
-_Evidence: Capture a screenshot of the successful Minikube installation._
+#### Successful Minikube Installation on Windows
+
 ![Minikube installation on Windows](img/win-minikube-install.png)
 
 #### Step 3: Install Docker Desktop
@@ -76,7 +77,8 @@ Once Docker Desktop is running, start the Minikube cluster:
 minikube start --driver=docker
 ```
 
-_Evidence: Capture a screenshot of the `minikube start` command output._
+#### Starting Minikube on Windows
+
 ![Starting Minikube on Windows](img/win-minikube-start.png)
 
 ### Installing on Linux
@@ -112,10 +114,13 @@ First, we need to install Docker, which will act as the driver for Minikube.
     sudo apt-get install -y docker-ce docker-ce-cli containerd.io docker-buildx-plugin docker-compose-plugin
     ```
 6.  **Verify Docker Installation:**
+
     ```bash
     sudo systemctl status docker
     ```
-    _Evidence: Capture a screenshot showing the Docker service is active and running._
+
+    #### Docker Service Status
+
     ![Docker status on Linux](img/linux-docker-status.png)
 
 #### Step 2: Install Minikube
@@ -125,10 +130,13 @@ First, we need to install Docker, which will act as the driver for Minikube.
     curl -LO https://storage.googleapis.com/minikube/releases/latest/minikube-linux-amd64
     ```
 2.  **Install Minikube:**
+
     ```bash
     sudo install minikube-linux-amd64 /usr/local/bin/minikube
     ```
-    _Evidence: Capture a screenshot of the successful Minikube installation._
+
+    #### Successful Minikube Installation on Linux
+
     ![Minikube installation on Linux](img/linux-minikube-install.png)
 
 #### Step 3: Install kubectl
@@ -139,7 +147,8 @@ While Minikube includes a version of `kubectl`, it's best practice to install `k
 sudo snap install kubectl --classic
 ```
 
-_Evidence: Capture a screenshot of the successful kubectl installation._
+#### Successful kubectl Installation
+
 ![kubectl installation on Linux](img/linux-kubectl-install.png)
 
 #### Step 4: Start Minikube
@@ -150,7 +159,8 @@ Start the Minikube cluster using the Docker driver:
 minikube start --driver=docker
 ```
 
-_Evidence: Capture a screenshot of the `minikube start` command output._
+#### Starting Minikube on Linux
+
 ![Starting Minikube on Linux](img/linux-minikube-start.png)
 
 ## Verifying the Installation
@@ -161,9 +171,8 @@ Once Minikube has started, you can check the status of your local cluster.
 minikube status
 ```
 
-You should see output indicating that the host, kubelet, and apiserver are running.
+#### Output of `minikube status`
 
-_Evidence: Capture a screenshot of the `minikube status` output._
 ![Minikube status check](img/minikube-status.png)
 
 You can also use `kubectl`, the Kubernetes command-line tool, which is automatically installed with Minikube.
@@ -172,9 +181,8 @@ You can also use `kubectl`, the Kubernetes command-line tool, which is automatic
 kubectl get pods -A
 ```
 
-This command lists all the pods in your cluster, which are part of the Kubernetes control plane.
+#### Output of `kubectl get pods -A`
 
-_Evidence: Capture a screenshot of the `kubectl get pods` output._
 ![kubectl get pods output](img/kubectl-pods.png)
 
 ## Basic Minikube Usage

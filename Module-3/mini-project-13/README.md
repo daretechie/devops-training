@@ -57,7 +57,7 @@ If your cluster isn't running, open your terminal and start it:
 minikube start
 ```
 
-_Evidence: Capture a screenshot of the `minikube start` output._
+#### Output of `minikube start`
 ![Minikube Start](img/minikube-start.png)
 
 ### Step 2: View Node Information
@@ -70,7 +70,7 @@ kubectl get nodes
 
 This command lists all nodes, their status (e.g., `Ready`), roles, age, and Kubernetes version.
 
-_Evidence: Capture a screenshot of the `kubectl get nodes` output._
+#### Output of `kubectl get nodes`
 ![kubectl get nodes](img/get-nodes.png)
 
 ### Step 3: Inspect a Node in Detail
@@ -85,7 +85,7 @@ _(Replace `minikube` if your node has a different name)._
 
 This command provides detailed information, which we will explore in the next section.
 
-_Evidence: Capture a screenshot of the output from the `kubectl describe node` command._
+#### Output of `kubectl describe node`
 ![kubectl describe node](img/describe-node.png)
 
 ## Understanding Node Details
@@ -134,7 +134,7 @@ kubectl get nodes --show-labels
 
 You should see your new `environment=development` label in the list.
 
-_Evidence: Capture a screenshot showing the output of the `kubectl get nodes --show-labels` command. In your submission, you can highlight or draw a box around the `environment=development` label to make it easy to spot._
+#### Output of `kubectl get nodes --show-labels`
 ![Node with Custom Label](img/node-labels.png)
 
 ## Node Scaling and Upgrades in Minikube
@@ -233,3 +233,10 @@ This feature is incredibly useful for testing different Kubernetes versions or c
 
 - **Error connecting to the server:**
   - **Solution:** Your cluster may not be running. Use `minikube start` to activate it.
+
+## Evidence for Submission
+
+- **Figure 1:** Output of `minikube start`
+- **Figure 2:** Output of `kubectl get nodes`
+- **Figure 3:** Output of `kubectl describe node`
+- **Figure 4:** Output of `kubectl get nodes --show-labels`
