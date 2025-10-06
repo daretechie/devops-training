@@ -20,6 +20,9 @@ This guide provides a beginner-friendly introduction to Kubernetes nodes and how
   - [Taints and Tolerations](#taints-and-tolerations)
 - [Working with Node Labels](#working-with-node-labels)
   - [Step 4: Add a Custom Label to a Node](#step-4-add-a-custom-label-to-a-node)
+- [Node Scaling and Upgrades in Minikube](#node-scaling-and-upgrades-in-minikube)
+  - [Understanding Minikube's Single-Node Architecture](#understanding-minikubes-single-node-architecture)
+  - [Upgrading Kubernetes Version](#upgrading-kubernetes-version)
 - [Cluster Cleanup](#cluster-cleanup)
 - [Troubleshooting](#troubleshooting)
 - [Evidence for Submission](#evidence-for-submission)
@@ -131,8 +134,38 @@ kubectl get nodes --show-labels
 
 You should see your new `environment=development` label in the list.
 
-_Evidence: Capture a screenshot showing the output of the `kubectl get nodes --show-labels` command after you have added the label._
+_Evidence: Capture a screenshot showing the output of the `kubectl get nodes --show-labels` command. In your submission, you can highlight or draw a box around the `environment=development` label to make it easy to spot._
 ![Node with Custom Label](img/node-labels.png)
+
+## Node Scaling and Upgrades in Minikube
+
+### Understanding Minikube's Single-Node Architecture
+
+By default, Minikube creates a single-node cluster. This is intentional, as Minikube is designed for local development and testing, not for production workloads. This single-node setup means you cannot scale your cluster by adding more nodes as you would in a production environment (e.g., with `kubeadm` or a cloud provider). The primary goal is to have a lightweight, portable Kubernetes environment that runs on your local machine.
+
+While you can't add more nodes to a single Minikube cluster, you can simulate a multi-node environment by creating multiple Minikube clusters (profiles), as described in the "Managing Multiple Clusters with Profiles" section.
+
+### Upgrading Kubernetes Version
+
+Minikube makes it easy to test different versions of Kubernetes. You can create a new cluster with a specific Kubernetes version or upgrade your existing cluster.
+
+**To start a cluster with a specific Kubernetes version:**
+
+```bash
+minikube start --kubernetes-version=v1.25.3
+```
+
+You can find available Kubernetes versions on the official Kubernetes release page.
+
+**To upgrade the Kubernetes version of an existing Minikube cluster:**
+
+You can use the `minikube start` command again with a newer `--kubernetes-version`. Minikube will handle the upgrade process. For example, if your cluster is running v1.25.3 and you want to upgrade to v1.26.0, you would run:
+
+```bash
+minikube start --kubernetes-version=v1.26.0
+```
+
+This approach allows you to keep your development environment in sync with your production environment's Kubernetes version.
 
 ## Cluster Cleanup
 
