@@ -48,9 +48,44 @@ This repository serves as a structured record of my hands-on experience and lear
   - [Mini Project 11 - AWS VPC Creation](Module-2/mini-project-11/README.md)
   - [Mini Project 12 - AWS Security Groups and Network ACLs](Module-2/mini-project-12/README.md)
   - [Mini Project 13 - Shell Scripting + Cloud Foundations](Module-2/mini-project-13/README.md)
+  - [Mini Project 14 - AWS Resources with Functions & Arrays](Module-2/mini-project-14/README.md)
+  - [Mini Project 15 - AWS Auto Scaling with Application Load Balancer](Module-2/mini-project-15/README.md)
+  - [Mini Project 16 - AWS Authentication Setup for EC2 and S3](Module-2/mini-project-16/README.md)
+  - [Mini Project 17 - AWS Cloud Manager: Environment Variables & Infrastructure](Module-2/mini-project-17/README.md)
 
 - [Capstone Project 2 - Shell Scripting](Module-2/capstone-project-2/README.md)
 - [Capstone Project 3 - MarketPeak E-Commerce Deployment](Module-2/capstone-project-3/README.md)
+- [Capstone Project 4 - AWS WordPress Deployment](Module-2/capstone-project-4/README.md)
+
+---
+
+- [Module 3 Projects](Module-3/)
+
+  - [Mini Project 1 - Docker and Containers Guide](Module-3/mini-project-01/README.md)
+  - [Mini Project 2 - Working with Docker Images](Module-3/mini-project-02/README.md)
+  - [Mini Project 3 - Working with Docker Containers](Module-3/mini-project-03/README.md)
+  - [Mini Project 4 - Introduction to Jenkins & CI/CD](Module-3/mini-project-04/README.md)
+  - [Mini Project 5 - Jenkins Freestyle Project](Module-3/mini-project-05/README.md)
+  - [Mini Project 6 - Docker Compose Implementation](Module-3/mini-project-06/README.md)
+  - [Mini Project 7 - Docker Registry & Image Management](Module-3/mini-project-07/README.md)
+  - [Mini Project 8 - Docker Security & Best Practices](Module-3/mini-project-08/README.md)
+  - [Mini Project 9 - Jenkins Pipeline as Code](Module-3/mini-project-09/README.md)
+  - [Mini Project 10 - GitHub Actions EC2 Pipeline](Module-3/mini-project-10/README.md)
+  - [Mini Project 11 - GitHub Actions with AWS ECS](Module-3/mini-project-11/README.md)
+  - [Mini Project 12 - Kubernetes Fundamentals](Module-3/mini-project-12/README.md)
+  - [Mini Project 13 - Kubernetes Pods Deep Dive](Module-3/mini-project-13/README.md)
+  - [Mini Project 14 - Kubernetes Deployments & Scaling](Module-3/mini-project-14/README.md)
+  - [Mini Project 15 - Kubernetes Services & Networking](Module-3/mini-project-15/README.md)
+  - [Mini Project 16 - Kubernetes Pod Networking](Module-3/mini-project-16/README.md)
+
+- [Capstone Project 4 - E-Commerce Platform](Module-3/capstone-project-5/README.md)
+
+---
+
+- [Module 4 Projects](Module-4/)
+
+  - [Mini Project 1 - Advanced Docker Concepts](Module-4/mini-project-01/README.md)
+
 
 ---
 
