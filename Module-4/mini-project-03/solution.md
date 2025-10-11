@@ -1,307 +1,86 @@
-# Step-by-Step Guide to Terraform Modules Project (Production Approach)
+# Mini-Project 3: Comprehensive Guide to Terraform Modules and Backends
 
-This guide provides a complete, production-oriented solution for the mini-project described in `notes.md`.
+This guide provides a detailed, beginner-friendly walkthrough for setting up a remote backend and provisioning infrastructure using Terraform modules. It addresses common issues and incorporates best practices for a successful project submission.
 
-## 1. Project Structure
+## Table of Contents
 
-We will create two separate directories:
+1.  [Project Overview](#1-project-overview)
+2.  [Prerequisites](#2-prerequisites)
+3.  [Step 1: Verify AWS Authentication](#3-step-1-verify-aws-authentication)
+4.  [Step 2: Set Up the Terraform Backend Manually](#4-step-2-set-up-the-terraform-backend-manually)
+5.  [Step 3: Configure the Terraform Project](#5-step-3-configure-the-terraform-project)
+6.  [Step 4: Provision the Infrastructure](#6-step-4-provision-the-infrastructure)
+7.  [Step 5: Clean Up Resources](#7-step-5-clean-up-resources)
+8.  [Troubleshooting Common Errors](#8-troubleshooting-common-errors)
+9.  [Recommended `.gitignore` Configuration](#9-recommended-gitignore-configuration)
+10. [Side Note: `terraform apply --auto-approve`](#10-side-note-terraform-apply---auto-approve)
 
-1.  `terraform-backend-setup`: To create and manage the S3 bucket and DynamoDB table for our backend.
-2.  `terraform-modules-vpc-s3`: The main project that will use the backend created in the first step.
+---
 
-```bash
-mkdir -p terraform-backend-setup
-mkdir -p terraform-modules-vpc-s3/modules/{vpc,s3}
+### 1. Project Overview
 
-# Create files for backend setup
-touch terraform-backend-setup/main.tf
+The goal of this project is to demonstrate proficiency with two core Terraform concepts:
 
-# Create files for main project
-cd terraform-modules-vpc-s3
-touch main.tf variables.tf terraform.tfvars backend.tf
-touch modules/vpc/main.tf modules/vpc/variables.tf
-touch modules/s3/main.tf modules/s3/variables.tf
-cd ..
-```
+*   **Remote State Management:** Using an S3 bucket and a DynamoDB table as a remote backend to securely store and lock the Terraform state file. This is crucial for collaborative environments.
+*   **Terraform Modules:** Structuring your infrastructure code into reusable modules for a VPC and an S3 bucket to promote organization and code reuse.
 
-## 2. Create the Backend Infrastructure (Production Approach)
+We will provision a new VPC and an S3 bucket with advanced features like versioning, logging, and lifecycle policies.
 
-In a production environment, all infrastructure should be managed by code. This includes the S3 bucket and DynamoDB table for the Terraform backend. We create them using a separate, minimal Terraform project.
+### 2. Prerequisites
 
-**`terraform-backend-setup/main.tf`**
+Before you begin, ensure you have the following:
 
-```terraform
-provider "aws" {
-  region = "us-east-1"
-}
+*   **AWS Account:** An active AWS account with programmatic access (Access Key ID and Secret Access Key).
+*   **AWS CLI:** The AWS Command Line Interface installed and configured. You can test your configuration with `aws configure list`.
+*   **Terraform:** Terraform installed on your local machine. You can verify the installation with `terraform --version`.
 
-# Choose a unique name for your bucket
-variable "tfstate_bucket_name" {
-  description = "The name of the S3 bucket for Terraform state"
-  type        = string
-  default     = "daretechie-devops-tf-state-bucket"
-}
+### 3. Step 1: Verify AWS Authentication
 
-resource "aws_s3_bucket" "tfstate" {
-  bucket = var.tfstate_bucket_name
-}
+It is critical to confirm that your AWS CLI is correctly authenticated before running any commands. This ensures that Terraform can interact with your AWS account.
 
-resource "aws_s3_bucket_versioning" "tfstate_versioning" {
-  bucket = aws_s3_bucket.tfstate.id
-  versioning_configuration {
-    status = "Enabled"
-  }
-}
-
-resource "aws_dynamodb_table" "tflock" {
-  name           = "terraform-lock"
-  read_capacity  = 5
-  write_capacity = 5
-  hash_key       = "LockID"
-
-  attribute {
-    name = "LockID"
-    type = "S"
-  }
-}
-```
-
-Now, let's create these resources. This project will use a local state file, which is acceptable for a small, rarely changed project like this one.
+Run the following command:
 
 ```bash
-cd terraform-backend-setup
-terraform init
-terraform apply --auto-approve
-cd ..
+aws sts get-caller-identity
 ```
 
-## 3. Configure the Terraform Backend
+**Expected Output:**
 
-Now that our backend infrastructure exists, we can configure our main project to use it.
+The output should show your AWS Account ID, User ID, and ARN.
 
-**`terraform-modules-vpc-s3/backend.tf`**
-
-```terraform
-terraform {
-  backend "s3" {
-    bucket         = "daretechie-devops-tf-state-bucket" # Must match the name in the previous step
-    key            = "main/terraform.tfstate" # We use a key to keep this state separate
-    region         = "us-east-1"
-    encrypt        = true
-    dynamodb_table = "terraform-lock"
-  }
+```json
+{
+    "UserId": "AIDA...",
+    "Account": "123456789012",
+    "Arn": "arn:aws:iam::123456789012:user/your-user-name"
 }
 ```
 
-## 4. Create the VPC Module
+**Action Required:** Take a screenshot of the command and its output. This will be part of your submission to prove you are authenticated.
 
-**`terraform-modules-vpc-s3/modules/vpc/variables.tf`**
+![aws-sts-get-caller-identity](img/aws-sts-get-caller-identity.png)
 
-```terraform
-variable "vpc_cidr_block" {
-  description = "CIDR block for the VPC"
-  type        = string
-  default     = "10.0.0.0/16"
-}
+### 4. Step 2: Set Up the Terraform Backend Manually
 
-variable "subnet_cidr_block" {
-  description = "CIDR block for the subnet"
-  type        = string
-  default     = "10.0.1.0/24"
-}
+Terraform needs a backend to store its state file. When working in a team, this backend must be remote (i.e., not on your local machine). We use an S3 bucket for storage and a DynamoDB table for state locking to prevent concurrent modifications.
 
-variable "env_prefix" {
-  description = "Environment prefix"
-  type        = string
-}
-```
+These resources must be created *before* you initialize the main Terraform project that will use them. For this project, we will create them manually via the AWS CLI.
 
-**`terraform-modules-vpc-s3/modules/vpc/main.tf`**
+1.  **Choose a Unique S3 Bucket Name:** Bucket names are globally unique. For this guide, we use `daretechie-devops-tf-state-bucket`, but you **must replace this with your own unique name**.
 
-```terraform
-resource "aws_vpc" "main" {
-  cidr_block = var.vpc_cidr_block
-  tags = {
-    Name = "${var.env_prefix}-vpc"
-  }
-}
-
-resource "aws_subnet" "main" {
-  vpc_id     = aws_vpc.main.id
-  cidr_block = var.subnet_cidr_block
-  tags = {
-    Name = "${var.env_prefix}-subnet"
-  }
-}
-
-resource "aws_internet_gateway" "gw" {
-  vpc_id = aws_vpc.main.id
-  tags = {
-    Name = "${var.env_prefix}-igw"
-  }
-}
-
-resource "aws_route_table" "main" {
-  vpc_id = aws_vpc.main.id
-
-  route {
-    cidr_block = "0.0.0.0/0"
-    gateway_id = aws_internet_gateway.gw.id
-  }
-
-  tags = {
-    Name = "${var.env_prefix}-route-table"
-  }
-}
-
-resource "aws_route_table_association" "a" {
-  subnet_id      = aws_subnet.main.id
-  route_table_id = aws_route_table.main.id
-}
-```
-
-## 5. Create the S3 Bucket Module
-
-**`terraform-modules-vpc-s3/modules/s3/variables.tf`**
-
-```terraform
-variable "bucket_name" {
-  description = "Name of the S3 bucket"
-  type        = string
-}
-```
-
-**`terraform-modules-vpc-s3/modules/s3/main.tf`**
-
-```terraform
-resource "aws_s3_bucket" "bucket" {
-  bucket = var.bucket_name
-  acl    = "private"
-
-  tags = {
-    Name = var.bucket_name
-  }
-}
-```
-
-## 6. Configure the Root Module
-
-**`terraform-modules-vpc-s3/variables.tf`**
-
-```terraform
-variable "vpc_cidr_block" {
-  description = "CIDR block for the VPC"
-  type        = string
-}
-
-variable "subnet_cidr_block" {
-  description = "CIDR block for the subnet"
-  type        = string
-}
-
-variable "bucket_name" {
-  description = "Name of the S3 bucket"
-  type        = string
-}
-
-variable "env_prefix" {
-  description = "Environment prefix"
-  type        = string
-}
-```
-
-**`terraform-modules-vpc-s3/terraform.tfvars`**
-
-```
-vpc_cidr_block    = "10.0.0.0/16"
-subnet_cidr_block = "10.0.1.0/24"
-bucket_name       = "daretechie-devops-tf-module-bucket" # Choose a unique bucket name
-env_prefix        = "dev"
-```
-
-**`terraform-modules-vpc-s3/main.tf`**
-
-```terraform
-provider "aws" {
-  region = "us-east-1"
-}
-
-module "vpc" {
-  source            = "./modules/vpc"
-  vpc_cidr_block    = var.vpc_cidr_block
-  subnet_cidr_block = var.subnet_cidr_block
-  env_prefix        = var.env_prefix
-}
-
-module "s3_bucket" {
-  source      = "./modules/s3"
-  bucket_name = var.bucket_name
-}
-```
-
-## 7. Execute Terraform
-
-Now you are ready to create the main infrastructure.
-
-```bash
-cd terraform-modules-vpc-s3
-```
-
-1.  **Initialize Terraform.** This will download providers and configure the S3 backend.
-
-    ```bash
-    terraform init
-    ```
-
-2.  **Plan and Apply.**
-
-    ```bash
-    terraform plan
-    terraform apply --auto-approve
-    ```
-
-## 8. Clean Up
-
-To destroy all resources, you must proceed in the reverse order.
-
-1.  **Destroy the main infrastructure.**
-
-    ```bash
-    cd terraform-modules-vpc-s3
-    terraform destroy --auto-approve
-    cd ..
-    ```
-
-2.  **Destroy the backend infrastructure.**
-
-    ```bash
-    cd terraform-backend-setup
-    terraform destroy --auto-approve
-    cd ..
-    ```
-
-take note
-
-## 2. Create the S3 Bucket for Terraform Backend
-
-Before we start writing the code, we need to create an S3 bucket to store the Terraform state file. This has to be done manually or with a separate, simple Terraform configuration, because the backend is configured before any resources are created.
-
-**For this exercise, we will create it manually using the AWS CLI.**
-
-1.  **Choose a unique bucket name.** Bucket names must be globally unique. We'll use `daretechie-devops-tf-state-bucket` as an example. Replace it with your own unique name.
-2.  **Create the S3 bucket.**
+2.  **Create the S3 Bucket:**
 
     ```bash
     aws s3api create-bucket --bucket daretechie-devops-tf-state-bucket --region us-east-1
     ```
 
-3.  **Enable versioning on the bucket** to keep the history of your state file.
+3.  **Enable Versioning:** This is a best practice to keep a history of your state files, allowing you to revert to a previous state if necessary.
 
     ```bash
     aws s3api put-bucket-versioning --bucket daretechie-devops-tf-state-bucket --versioning-configuration Status=Enabled
     ```
 
-4.  **Create a DynamoDB table for state locking.** This is a best practice to prevent concurrent runs of Terraform from corrupting your state.
+4.  **Create the DynamoDB Table for State Locking:**
 
     ```bash
     aws dynamodb create-table \
@@ -310,3 +89,161 @@ Before we start writing the code, we need to create an S3 bucket to store the Te
         --key-schema AttributeName=LockID,KeyType=HASH \
         --provisioned-throughput ReadCapacityUnits=5,WriteCapacityUnits=5
     ```
+
+**Action Required:** Take a screenshot of the successful creation of these resources.
+
+![backend-setup](img/backend-setup.png)
+
+### 5. Step 3: Configure the Terraform Project
+
+Now, navigate to the main project directory and prepare the Terraform files.
+
+```bash
+cd /home/daretechie/DevProject/GitHub/devops-training/Module-4/mini-project-03/terraform-modules-vpc-s3
+```
+
+#### a. Fix Module Paths
+
+The error `Invalid module source address` occurs because Terraform requires a `./` prefix for local paths. Correct the `source` arguments in `main.tf`.
+
+**File:** `main.tf`
+
+```terraform
+module "vpc" {
+  source = "./modules/vpc"
+  vpc_cidr = "10.0.0.0/16"
+}
+
+module "s3" {
+  source      = "./modules/s3"
+  bucket_name = "daretechie-devops-unique-bucket-for-hosting"
+}
+```
+
+#### b. Configure the Backend
+
+Your `backend.tf` file tells Terraform where to store the state. **Make sure the bucket name matches the one you created manually.**
+
+**File:** `backend.tf`
+
+```terraform
+terraform {
+  backend "s3" {
+    bucket         = "daretechie-devops-tf-state-bucket" # Use your unique bucket name here
+    key            = "terraform.tfstate"
+    region         = "us-east-1"
+    dynamodb_table = "terraform-lock"
+  }
+}
+```
+
+### 6. Step 4: Provision the Infrastructure
+
+With the configuration corrected, you can now initialize Terraform, review the plan, and apply it.
+
+1.  **Initialize Terraform:** This command downloads the necessary providers and configures the backend.
+
+    ```bash
+    terraform init
+    ```
+
+    You should see a message "Successfully configured the backend \"s3\"" and "Terraform has been successfully initialized!".
+
+2.  **Plan the Changes:** This command shows you what resources Terraform will create, change, or destroy.
+
+    ```bash
+    terraform plan
+    ```
+
+3.  **Apply the Changes:** This command executes the plan and builds the infrastructure.
+
+    ```bash
+    terraform apply
+    ```
+
+    Terraform will ask for confirmation. Type `yes` and press Enter.
+
+**Action Required:** Take a screenshot of the successful `terraform apply` output, showing the resources created.
+
+![terraform-apply-output](img/terraform-apply-output.png)
+
+### 7. Step 5: Clean Up Resources
+
+A critical part of infrastructure management is cleaning up resources you no longer need to avoid incurring costs.
+
+1.  **Destroy Terraform-Managed Resources:**
+
+    ```bash
+    terraform destroy
+    ```
+
+    Confirm the action by typing `yes`.
+
+    **Action Required:** Take a screenshot of the successful `terraform destroy` output.
+
+    ![terraform-destroy-output](img/terraform-destroy-output.png)
+
+2.  **Manually Delete Backend Resources:** The S3 bucket and DynamoDB table were created manually, so they must be deleted manually.
+
+    *   **Empty and Delete the S3 Bucket:**
+
+        ```bash
+        aws s3 rb s3://daretechie-devops-tf-state-bucket --force
+        ```
+
+    *   **Delete the DynamoDB Table:**
+
+        ```bash
+        aws dynamodb delete-table --table-name terraform-lock
+        ```
+
+### 8. Troubleshooting Common Errors
+
+*   **Error:** `Invalid module source address`
+    *   **Cause:** The `source` path for a local module in `main.tf` is missing the `./` prefix.
+    *   **Solution:** Change `source = "modules/vpc"` to `source = "./modules/vpc"`.
+
+*   **Error:** `S3 bucket "..." does not exist`
+    *   **Cause:** You ran `terraform init` before creating the S3 bucket for the backend, or there is a typo in the bucket name in `backend.tf`.
+    *   **Solution:** Ensure you have manually created the S3 bucket and that the name in `backend.tf` is correct.
+
+*   **Error:** `creating S3 Bucket (...): BucketAlreadyExists`
+    *   **Cause:** This happens if your Terraform configuration attempts to create an S3 bucket that already exists. This is common if you try to manage your backend bucket with the same Terraform code that uses it as a backend.
+    *   **Solution:** Backend resources should be managed completely separately from your main infrastructure configuration. By creating them manually as we did, you avoid this circular dependency.
+
+### 9. Recommended `.gitignore` Configuration
+
+To keep your repository clean and secure, you should prevent Terraform state files and other temporary files from being committed. Your `.gitignore` file should contain:
+
+```gitignore
+# Local .terraform directories
+**/.terraform/*
+
+# .tfstate files
+*.tfstate
+*.tfstate.*
+
+# Crash log files
+crash.log
+
+# Exclude all .tfvars files, which are likely to contain sensitive data,
+# unless the user explicitly commits them.
+*.tfvars
+*.tfvars.json
+
+# Ignore override files as they are usually used for local testing
+override.tf
+override.tf.json
+*_override.tf
+*_override.tf.json
+
+# TFLint files
+.tflint.hcl
+
+# Terraform lock file
+.terraform.lock.hcl
+```
+
+### 10. Side Note: `terraform apply --auto-approve`
+
+The `--auto-approve` flag is used to skip the interactive confirmation step during `terraform apply`. While this is useful for automation (like in a CI/CD pipeline where no user is present to type "yes"), it should be **used with caution**. In a production environment, you should always run `terraform plan` and have a human review the changes before applying them. Manual approval is a critical safety check.
