@@ -1,0 +1,22 @@
+# Local Terraform directories
+.terraform/
+
+# Local Terraform state files
+*.tfstate
+*.tfstate.backup
+
+# Crash log files
+crash.log
+
+# Exclude all .tfvars files to avoid committing sensitive variables
+# It is recommended to commit a terraform.tfvars.example file instead.
+*.tfvars
+
+# Ignore override files as they are meant to be used locally
+override.tf
+override.tf.json
+*_override.tf
+
+# Ignore CLI configuration files
+.terraformrc
+terraform.rc
