@@ -80,7 +80,7 @@ This repository serves as a structured record of my hands-on experience and lear
 |-------|-------------|---------|
 | 🚀 **DevOps Master** | Completed full curriculum | ✅ **ACHIEVED** |
 | ☸️ **Kubernetes Expert** | Full cluster monitoring setup | ✅ **ACHIEVED** |
-| 📊 **Monitoring Guru** | Prometheus + Grafana stack | ✅ **ACHIEVED** |
+| 📊 **Monitoring Guru** | Prometheus + Grafana + Gatus stack | ✅ **ACHIEVED** |
 | ⚙️ **IaC Specialist** | Terraform infrastructure automation | ✅ **ACHIEVED** |
 | 🔧 **Config Manager** | Ansible automation expert | ✅ **ACHIEVED** |
 
@@ -109,6 +109,7 @@ This repository serves as a structured record of my hands-on experience and lear
 ![AWS](https://img.shields.io/badge/Amazon%20AWS-232F3E?style=flat&logo=amazon-aws&logoColor=white)
 ![Jenkins](https://img.shields.io/badge/Jenkins-D24939?style=flat&logo=jenkins&logoColor=white)
 ![Grafana](https://img.shields.io/badge/Grafana-F46800?style=flat&logo=grafana&logoColor=white)
+![Gatus](https://img.shields.io/badge/Gatus-purple?style=flat)
 
 ## 📚 Projects
 
