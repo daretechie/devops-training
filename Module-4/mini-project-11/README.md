@@ -710,27 +710,108 @@ rate(node_network_receive_bytes_total[5m]) + rate(node_network_transmit_bytes_to
 
 ![Metrics Exploration](./img/k8s-metrics-exploration.png)
 
-#### Step 8: Verify Multi-Node Monitoring
+---
 
-**Objective**: Confirm that Node Exporter is collecting metrics from all cluster nodes.
+### Phase 6: Performance Monitoring and Optimization
 
-**Check Node Exporter pods across all nodes:**
+#### Step 10: Performance Monitoring Evidence Collection
 
-```bash
-kubectl get pods -n monitoring -l app=node-exporter -o wide
-```
+**Objective**: Collect specific performance metrics and evidence of monitoring effectiveness.
 
-**Verify metrics collection per node:**
+**Create performance baseline metrics:**
 
 ```bash
-# Query metrics grouped by node
-curl -s "http://localhost:9090/api/v1/query?query=node_uname_info" | jq '.data.result[] | {nodename: .metric.nodename, nodename: .metric.nodename}'
+# Collect initial performance metrics
+kubectl top nodes
+kubectl top pods -n monitoring
 
-# Check active targets per node
-curl -s http://localhost:9090/api/v1/targets | jq '.data.activeTargets[] | select(.labels.job == "node-exporter") | {instance: .labels.instance, nodename: .labels.nodename}'
+# Query Prometheus for performance data
+curl -s "http://localhost:9090/api/v1/query?query=node:node_cpu_utilisation:avg1m" | jq
+curl -s "http://localhost:9090/api/v1/query?query=node:node_memory_utilisation:" | jq
 ```
 
-![Multi-Node Verification](./img/multi-node-verification.png)
+**Performance metrics to document:**
+
+```promql
+# Node Exporter resource usage
+container_cpu_usage_seconds_total{pod=~"node-exporter.*"}
+container_memory_usage_bytes{pod=~"node-exporter.*"}
+
+# Prometheus server resource usage
+container_cpu_usage_seconds_total{pod=~"prometheus.*"}
+container_memory_usage_bytes{pod=~"prometheus.*"}
+
+# Scraping performance
+prometheus_target_interval_length_seconds_sum / prometheus_target_interval_length_seconds_count
+prometheus_target_scrapes_sample_duplicate_timestamp_total
+```
+
+**Create performance monitoring report:**
+
+```bash
+cat > performance-report.txt << 'EOF'
+KUBERNETES CLUSTER MONITORING PERFORMANCE REPORT
+===============================================
+
+1. RESOURCE UTILIZATION:
+   - Node Exporter CPU: [COLLECT FROM QUERIES ABOVE]
+   - Node Exporter Memory: [COLLECT FROM QUERIES ABOVE]
+   - Prometheus CPU: [COLLECT FROM QUERIES ABOVE]
+   - Prometheus Memory: [COLLECT FROM QUERIES ABOVE]
+
+2. MONITORING OVERHEAD ANALYSIS:
+   - Total monitoring resource usage: [CALCULATE PERCENTAGE]
+   - Scraping efficiency: [TARGETS UP/DOWN RATIO]
+   - Metric cardinality: [TOTAL ACTIVE SERIES]
+
+3. CLUSTER COVERAGE:
+   - Nodes monitored: [TOTAL NODES]
+   - Metrics per node: [APPROXIMATE METRICS COLLECTED]
+   - Update frequency: 30 seconds
+
+4. PERFORMANCE OPTIMIZATION OPPORTUNITIES:
+   - [ANALYZE RESOURCE USAGE PATTERNS]
+   - [IDENTIFY BOTTLENECKS]
+   - [RECOMMEND IMPROVEMENTS]
+EOF
+```
+
+![Performance Monitoring Evidence](./img/performance-monitoring-evidence.png)
+
+#### Step 11: Resource Overhead Analysis
+
+**Objective**: Analyze and document the resource overhead of monitoring components.
+
+**Resource usage analysis:**
+
+```bash
+# Analyze Node Exporter resource consumption
+kubectl top pods -n monitoring -l app=node-exporter
+
+# Prometheus resource usage
+kubectl top pods -n monitoring -l app=prometheus
+
+# Calculate monitoring overhead percentage
+# Node Exporter typically uses < 1% of node resources
+# Prometheus server typically uses 2-5% of allocated resources
+```
+
+**Optimization recommendations:**
+
+1. **Resource Limits**: Adjust based on cluster size and monitoring load
+2. **Scrape Intervals**: Increase intervals for non-critical metrics
+3. **Metric Filtering**: Disable unnecessary collectors for better performance
+4. **Storage Optimization**: Configure appropriate retention policies
+5. **Horizontal Scaling**: Consider Prometheus HA for large clusters
+
+**Document optimization evidence:**
+
+- Resource usage before and after optimizations
+- Scraping performance improvements
+- Storage efficiency gains
+- Alert response time improvements
+
+![Resource Overhead Analysis](./img/resource-overhead-analysis.png)
 
 ---
 
@@ -822,11 +903,20 @@ kubectl exec -n monitoring prometheus-abc12 -- curl http://node-exporter.monitor
    - `evidence-16-memory-metrics.png` - Memory usage metrics and graphs
    - `evidence-17-disk-metrics.png` - Disk space metrics and graphs
    - `evidence-18-network-metrics.png` - Network traffic metrics and graphs
+   - `evidence-19-performance-baselines.png` - Initial performance metrics collection
+   - `evidence-20-resource-usage.png` - Monitoring component resource consumption
 
-6. **Advanced Features**
-   - `evidence-19-alert-rules.png` - Alert rules configuration and status
-   - `evidence-20-multi-node-metrics.png` - Metrics from multiple cluster nodes
-   - `evidence-21-custom-queries.png` - Advanced PromQL queries and visualizations
+6. **Alert Configuration and Testing**
+   - `evidence-21-alert-rules-yaml.png` - Comprehensive alert rules configuration
+   - `evidence-22-alert-rules-loaded.png` - Alert rules loaded in Prometheus
+   - `evidence-23-alert-testing.png` - Alert testing with load generation
+   - `evidence-24-triggered-alerts.png` - Successfully triggered alerts
+   - `evidence-25-alert-resolution.png` - Alert resolution verification
+
+7. **Performance Analysis**
+   - `evidence-26-performance-report.png` - Performance monitoring report
+   - `evidence-27-overhead-analysis.png` - Resource overhead analysis
+   - `evidence-28-optimization-evidence.png` - Performance optimizations implemented
 
 ### Screenshot Naming Convention
 All screenshots should be saved in the `img/` directory with descriptive names:
@@ -862,17 +952,68 @@ All screenshots should be saved in the `img/` directory with descriptive names:
 
 ---
 
-## 🔧 Advanced Configuration Options
+## 🔧 Performance Monitoring and Optimization
 
-### Custom Collectors Configuration
+### Metrics Streamlining and Cardinality Management
+
+**Understanding Metric Cardinality:**
+- **High Cardinality Issues**: Too many unique label combinations can overwhelm Prometheus
+- **Label Optimization**: Use consistent, meaningful labels across all metrics
+- **Filtering Strategies**: Implement proper relabeling to reduce unnecessary metrics
+
+**Performance Optimization Techniques:**
+
 ```yaml
-args:
-  - '--collector.systemd'
-  - '--collector.processes'
-  - '--collector.cpu.info'
-  - '--collector.meminfo.numa'
-  - '--collector.diskstats.ignored-devices=^(ram|loop|fd)\d+$'
-  - '--collector.filesystem.ignored-mount-points=^/(sys|proc|dev|host|etc)($$|/)'
+# Optimized scrape configuration
+scrape_configs:
+  - job_name: 'node-exporter-optimized'
+    kubernetes_sd_configs:
+      - role: pod
+    relabel_configs:
+      # Drop unnecessary labels to reduce cardinality
+      - action: drop
+        regex: '__meta_kubernetes_pod_label_.*'
+        source_labels: [__meta_kubernetes_pod_label_.*]
+      # Keep only essential labels
+      - action: replace
+        source_labels: [__meta_kubernetes_pod_node_name]
+        target_label: node
+      - action: replace
+        source_labels: [__meta_kubernetes_namespace]
+        target_label: namespace
+```
+
+### Resource Overhead Analysis
+
+**Monitoring Component Resource Usage:**
+
+```promql
+# Node Exporter resource usage
+rate(container_cpu_usage_seconds_total{pod=~"node-exporter.*"}[5m])
+container_memory_usage_bytes{pod=~"node-exporter.*"}
+
+# Prometheus resource usage
+rate(container_cpu_usage_seconds_total{pod=~"prometheus.*"}[5m])
+container_memory_usage_bytes{pod=~"prometheus.*"}
+
+# Scraping performance
+prometheus_target_scrapes_sample_limit_total
+prometheus_target_scrapes_exceeded_sample_limit_total
+```
+
+**Overhead Calculation:**
+- **Node Exporter Overhead**: Typically < 1% of node CPU/memory
+- **Prometheus Overhead**: 2-5% of allocated resources depending on scale
+- **Network Overhead**: Minimal for local scraping
+- **Storage Overhead**: Depends on retention policy and metric volume
+
+### Performance Tuning Recommendations
+
+1. **Scrape Interval Optimization**: Increase intervals for non-critical metrics
+2. **Sample Limit Configuration**: Set appropriate sample limits per scrape target
+3. **Memory Tuning**: Adjust Prometheus memory settings based on workload
+4. **Storage Optimization**: Configure appropriate retention and compaction settings
+5. **Horizontal Scaling**: Consider multiple Prometheus instances for large clusters
 ```
 
 ### Network Policies for Security
@@ -949,7 +1090,12 @@ spec:
 - [ ] **Prometheus targets verified** (all nodes showing as UP)
 - [ ] **Key metrics explored** (CPU, memory, disk, network, filesystem)
 - [ ] **Advanced queries tested** with proper PromQL expressions
-- [ ] **Alert rules configured** (optional but recommended)
+- [ ] **Performance baseline established** (resource usage documented before optimization)
+- [ ] **Alert configuration implemented** (comprehensive rules for all critical metrics)
+- [ ] **Alert functionality tested** (successful trigger and resolution verified)
+- [ ] **Resource overhead analyzed** (monitoring component resource usage documented)
+- [ ] **Performance optimizations identified** (specific recommendations for improvement)
+- [ ] **Performance evidence collected** (before/after metrics and analysis report)
 - [ ] **All screenshots captured** for evidence
 - [ ] **Troubleshooting documented** (if applicable)
 
@@ -976,8 +1122,12 @@ By completing this project, you have:
 ✅ **Configured automatic service discovery** for dynamic cluster environments
 ✅ **Implemented security best practices** with RBAC and security contexts
 ✅ **Explored node-level metrics** and their significance in cluster health
-✅ **Created scalable monitoring solutions** for production Kubernetes environments
-✅ **Gained practical experience** with enterprise-grade cluster observability
+✅ **Implemented comprehensive alert configuration** with mandatory rules and testing
+✅ **Conducted performance monitoring** with baseline establishment and optimization analysis
+✅ **Analyzed resource overhead** of monitoring components with specific recommendations
+✅ **Documented performance evidence** including metrics streamlining and cardinality management
+✅ **Verified alert functionality** through systematic testing and validation
+✅ **Provided optimization strategies** for production deployment and scaling
 ✅ **Documented the entire process** for submission and review
 
 **Congratulations on mastering Kubernetes cluster monitoring!** 🎉
